@@ -407,6 +407,9 @@
 #ifdef HAVE_GETCLOCK
 #define USE_getclock
 #else
+#ifdef HAVE_QUERYPERFORMANCECOUNTER
+#define USE_QueryPerformanceCounter
+#else
 #ifdef HAVE_GETSYSTEMTIMEASFILETIME
 #define USE_GetSystemTimeAsFileTime
 #else
@@ -418,6 +421,7 @@
 #else
 #ifdef HAVE_TIME
 #define USE_time
+#endif
 #endif
 #endif
 #endif

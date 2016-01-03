@@ -171,6 +171,7 @@ ___time *tim;)
 {
 #ifndef USE_clock_gettime_realtime
 #ifndef USE_getclock
+#ifndef USE_QueryPerformanceCounter
 #ifndef USE_GetSystemTimeAsFileTime
 #ifndef USE_gettimeofday
 #ifndef USE_ftime
@@ -179,6 +180,7 @@ ___time *tim;)
 
   *tim = ___time_mod.time_neg_infinity;
 
+#endif
 #endif
 #endif
 #endif
@@ -208,6 +210,37 @@ ___time *tim;)
     ___time_from_nsecs (tim, ts.tv_sec-JAN_1(1970), ts.tv_nsec);
   else
     *tim = ___time_mod.time_neg_infinity;
+
+#endif
+
+#ifdef USE_QueryPerformanceCounter
+
+  static int firsttime = 1;
+  static double basetime;
+  static double basefrequency;
+  static LONGLONG basecount;
+
+  if (firsttime)
+  {
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    ___time_from_FILETIME(&basetime, ft);
+    
+    static LARGE_INTEGER freq;
+    static LARGE_INTEGER count;
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&count);
+    basefrequency = (double) freq.QuadPart;
+    basecount = count.QuadPart;
+    
+    firsttime = 0;
+  }
+
+  LARGE_INTEGER counter;
+
+  QueryPerformanceCounter(&counter);
+
+  *tim = basetime + (double) (counter.QuadPart - basecount) / basefrequency;
 
 #endif
 
