@@ -2086,9 +2086,18 @@
     (set! targ-line-size (+ targ-line-size 1))))
 
 (define (targ-display x)
+  (define (c-extension? filename)
+    (let ((len (string-length filename)))
+      (or (and (>= len 2)
+               (equal? (substring filename (- len 2) len) ".c"))
+          (and (>= len 4)
+               (equal? (substring filename (- len 4) len) ".cpp")))))
+  
   (if (= targ-line-size 0)
     (if targ-source-filename
       (begin
+        (if (not (c-extension? targ-source-filename))
+            (begin
         (cond ((not (string=? targ-source-filename targ-current-filename))
                (targ-display-no-line-info "#line ")
                (targ-display-no-line-info targ-source-line-number)
@@ -2101,7 +2110,7 @@
                (targ-display-no-line-info targ-source-line-number)
                (targ-display-no-line-info #\newline)))
         (set! targ-current-line-number targ-source-line-number)
-        (set! targ-current-filename targ-source-filename))))
+        (set! targ-current-filename targ-source-filename))))))
   (targ-display-no-line-info x))
 
 (define (targ-macro-definition name value)
