@@ -709,7 +709,7 @@
 
   (if targ-track-scheme-option?
     (let* ((src (node-source targ-proc-instr-node))
-           (x (locat-filename-and-line (and src (source-locat src))))
+           (x (locat-id-and-line (and src (source-locat src))))
            (filename (car x))
            (line (cdr x)))
       (if (< 0 (string-length filename))

@@ -205,6 +205,18 @@
             (cons "" 1)))
       (cons "" 1)))
 
+(define (locat-id-and-line loc)
+  (if loc
+      (let* ((container (##locat-container loc))
+             (id (##container->id container)))
+        (if id
+            (let* ((position (##locat-position loc))
+                   (filepos (##position->filepos position))
+                   (line (+ (**filepos-line filepos) 1)))
+              (cons id line))
+            (cons "" 1)))
+      (cons "" 1)))
+
 (define (locat-filename loc)
   (car (locat-filename-and-line loc)))
 
