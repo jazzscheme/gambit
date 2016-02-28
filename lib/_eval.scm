@@ -290,8 +290,9 @@
   ;; container is an arbitrary object and result must be a string
   (let ((x
          (let ((hook ##container->id-hook))
-           (and (##procedure? hook)
-                (hook container)))))
+           (or (and (##procedure? hook)
+                    (hook container))
+               container))))
     (cond ((##string? x)
            x)
           (else
