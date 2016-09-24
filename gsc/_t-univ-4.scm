@@ -86,6 +86,7 @@
 
 ;;TODO: ("##meroon?"                  (1)   #f ()    0    boolean extended)
 ;;TODO: ("##jazz?"                    (1)   #f ()    0    boolean extended)
+;;TODO: ("##jazzstruct?"              (1)   #f ()    0    boolean extended)
 
 ;;TODO: ("##gc-hash-table?"           (1)   #f ()    0    boolean extended)
 ;;TODO: ("##mem-allocated?"           (1)   #f ()    0    boolean extended)

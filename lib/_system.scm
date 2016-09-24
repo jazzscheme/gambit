@@ -60,6 +60,7 @@
 (define-prim (##special? obj) #f)
 (define-prim (##meroon? obj) #f)
 (define-prim (##jazz? obj) #f)
+(define-prim (##jazzstruct? obj) #f)
 (define-prim (##gc-hash-table? obj) #f)
 
 ;;;----------------------------------------------------------------------------
@@ -2056,6 +2057,7 @@
 (##define-macro (gchashtable-tag)    #x6c)
 (##define-macro (meroon-tag)         #x6d)
 (##define-macro (jazz-tag)           #x6f) ;; note: tag is not consecutive
+(##define-macro (jazzstruct-tag)     #x8f) ;; note: tag is not consecutive ;; quicky for value
 (##define-macro (homvector-tag)      #x6e)
 
 (##define-macro (false-tag)          #x70)

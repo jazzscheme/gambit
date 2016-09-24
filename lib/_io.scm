@@ -9775,6 +9775,8 @@
                (##wr-meroon we obj))
               ((##jazz? obj)
                (##wr-jazz we obj))
+              ((##jazzstruct? obj)
+               (##wr-jazzstruct we obj))
               ((##box? obj)
                (##wr-box we obj))
               (else
@@ -11152,6 +11154,15 @@
 
 (define-prim (##wr-jazz-set! x)
   (set! ##wr-jazz x))
+
+(define-prim (##wr-jazzstruct we obj)
+  (##wr-sn
+   we
+   obj
+   'jazzstruct
+   (##void)))
+
+(set! ##wr-jazzstruct ##wr-jazzstruct)
 
 (define-prim (##wr-frame we obj)
   (if (##eq? (macro-readtable-sharing-allowed?

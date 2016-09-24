@@ -2054,6 +2054,7 @@ ___CAST_U64((val)<<(((i)&7)<<3))
  * ___sBOXVALUES    = tag for box and multiple-values objects
  * ___sMEROON       = tag for Meroon objects
  * ___sJAZZ         = tag for Jazz objects
+ * ___sJAZZSTRUCT   = tag for Jazz structures
  * ___sSYMBOL       = tag for symbols
  * ___sKEYWORD      = tag for keywords
  * ___sFRAME        = tag for continuation frames
@@ -2100,6 +2101,7 @@ ___CAST_U64((val)<<(((i)&7)<<3))
 #define ___sWEAK         13
 #define ___sPROCEDURE    14
 #define ___sRETURN       15
+#define ___sJAZZSTRUCT   16
 #define ___sFOREIGN      18
 #define ___sSTRING       19
 #define ___sS8VECTOR     20
@@ -2901,6 +2903,7 @@ ___FIX((((___BIGMDOUBLEDIGIT)___BIGMFETCH(___BODY_AS(u,___tSUBTYPED),___INT(___B
 #define ___VALUESP(x)(___TYP((___temp=x))==___tSUBTYPED&&___TESTSUBTYPETAG(___temp,___sBOXVALUES)&&(___SUBTYPED_HEADER(___temp)&___LSMASK)!=___MAKE_HD((___BOX_SIZE<<___LWS),___sBOXVALUES,0))
 #define ___MEROONP(x)___TESTSUBTYPE(x,___sMEROON)
 #define ___JAZZP(x)___TESTSUBTYPE(x,___sJAZZ)
+#define ___JAZZSTRUCTP(x)___TESTSUBTYPE(x,___sJAZZSTRUCT)
 #define ___SYMBOLP(x)___TESTSUBTYPE(x,___sSYMBOL)
 #define ___KEYWORDP(x)___TESTSUBTYPE(x,___sKEYWORD)
 #define ___SYMKEYP(x)(___SYMBOLP(x)||___KEYWORDP(x))

@@ -529,6 +529,8 @@
 ("##special?"                         (1)   #f ()    0    boolean extended)
 ("##meroon?"                          (1)   #f ()    0    boolean extended)
 ("##jazz?"                            (1)   #f ()    0    boolean extended)
+("##jazzstruct?"                      (1)   #f ()    0    boolean extended)
+("##will?"                            (1)   #f ()    0    boolean extended)
 ("##gc-hash-table?"                   (1)   #f ()    0    boolean extended)
 ("##mem-allocated?"                   (1)   #f ()    0    boolean extended)
 ("##subtyped?"                        (1)   #f ()    0    boolean extended)

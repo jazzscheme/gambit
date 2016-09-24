@@ -50,6 +50,7 @@
 (##define-macro (macro-subtype-weak)         13)
 (##define-macro (macro-subtype-procedure)    14)
 (##define-macro (macro-subtype-return)       15)
+(##define-macro (macro-subtype-jazzstruct)   16)
 
 (##define-macro (macro-subtype-foreign)      18)
 (##define-macro (macro-subtype-string)       19)
