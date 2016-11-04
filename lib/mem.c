@@ -46,10 +46,11 @@
 
 
 #define ENABLE_GC_TRACE_PHASES
-#define ENABLE_GC_ACTLOG_PHASES
-#define ENABLE_GC_ACTLOG_SCAN_COMPLETE_HEAP_CHUNK
 
 #endif
+
+#define ENABLE_GC_ACTLOG_PHASES
+#define ENABLE_GC_ACTLOG_SCAN_COMPLETE_HEAP_CHUNK
 
 
 /*---------------------------------------------------------------------------*/
