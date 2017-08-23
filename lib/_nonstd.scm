@@ -6,6 +6,13 @@
 
 ;;;============================================================================
 
+;;; customized gambit for jazz
+
+(define ##gambitjazz?
+  #t)
+
+;;;----------------------------------------------------------------------------
+
 ;;; Implementation of exceptions.
 
 (implement-library-type-error-exception)
