@@ -8978,6 +8978,10 @@ int options;)
           ___close_half_duplex_pipe (&fdp.input, 1);
           ___close_half_duplex_pipe (&fdp.output, 0);
           ___close_half_duplex_pipe (&hdp_errno, 0);
+          
+          ___set_fd_blocking_mode (STDIN_FILENO, 1);
+          ___set_fd_blocking_mode (STDOUT_FILENO, 1);
+          ___set_fd_blocking_mode (STDERR_FILENO, 1);
 
           {
             /* Close all file descriptors that aren't used. */
