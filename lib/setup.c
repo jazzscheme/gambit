@@ -2689,6 +2689,7 @@ ___PSDKR
 double x;)
 {
   ___PSGET
+  ___SCMOBJ ___temp;
 
 #ifdef USE_snprintf
 
