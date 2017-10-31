@@ -68,17 +68,25 @@
       x
       (##sourcify-aux2 x src)))
 
-(define (##sourcify-aux1 code src)
-  (##vector ##source1-marker
-            code
-            (##vector-ref src 2)
-            (##vector-ref src 3)))
+(define ##sourcify-aux1
+  #f)
 
-(define (##sourcify-aux2 code src)
-  (##vector ##source2-marker
-            code
-            (##vector-ref src 2)
-            (##vector-ref src 3)))
+(set! ##sourcify-aux1
+      (lambda (code src)
+        (##vector ##source1-marker
+                  code
+                  (##vector-ref src 2)
+                  (##vector-ref src 3))))
+
+(define ##sourcify-aux2
+  #f)
+
+(set! ##sourcify-aux2
+      (lambda (code src)
+        (##vector ##source2-marker
+                  code
+                  (##vector-ref src 2)
+                  (##vector-ref src 3))))
 
 (define (##sourcify-deep x src)
 
@@ -4140,13 +4148,21 @@
 
 ;;;============================================================================
 
-(define (##wrap-datum re x)
-  (if (##source? x) ;; avoid adding source location on #.expr when expr returns a source object
-      x
-      (##make-source x (##readenv->locat re))))
+(define ##wrap-datum
+  #f)
 
-(define (##unwrap-datum re x)
-  (##source-code x))
+(set! ##wrap-datum
+      (lambda (re x)
+        (if (##source? x) ;; avoid adding source location on #.expr when expr returns a source object
+            x
+          (##make-source x (##readenv->locat re)))))
+
+(define ##unwrap-datum
+  #f)
+
+(set! ##unwrap-datum
+      (lambda (re x)
+        (##source-code x)))
 
 (define (##read-expr-from-port port)
   (let ((re
