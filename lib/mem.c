@@ -6448,6 +6448,12 @@ ___PSDKR)
   ___D_FP
   ___R_FP
 
+  // hack around what appears to be a very difficult bug to
+  // reproduce and fix in commit 54709a317cb65d16c5acdac0517091d0825e552f
+  // Improve performance of deep stack recursions that cause the current
+  // stack section to overflow
+  return ___FAL;
+  
   if (stack_msection != heap_msection &&
       ___ps->stack_start == &___STK(-___FIRST_BREAK_FRAME_SPACE))
     {
