@@ -5807,6 +5807,10 @@ int level;)
   return ___FIX(___NO_ERR);
 }
 
+#ifdef __linux__
+  #include "sd-daemon.h"
+#endif
+
 ___HIDDEN ___device_tcp_server_vtbl ___device_tcp_server_table =
 {
   {
@@ -5845,6 +5849,21 @@ ___tls_context *tls_context;)
   SOCKET_TYPE s;
   ___device_tcp_server *d;
 
+#ifdef __linux__
+  int n = sd_listen_fds(0);
+  if (n > 1)
+  {
+    fprintf(stderr, "Too many file descriptors received.\n");
+    exit(1);
+  }
+  else if (n == 1)
+  {
+    s = SD_LISTEN_FDS_START + 0;
+  }
+  else
+  {
+#endif
+
   if ((e = create_socket (&s, local_addr, local_addrlen, options))
       != ___FIX(___NO_ERR))
     return e;
@@ -5856,6 +5875,10 @@ ___tls_context *tls_context;)
       CLOSE_SOCKET(s); /* ignore error */
       return e;
     }
+
+#ifdef __linux__
+  }
+#endif
 
 #ifdef USE_FDSET_RESIZING
 
