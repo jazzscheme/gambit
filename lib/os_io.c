@@ -5808,7 +5808,7 @@ int level;)
 }
 
 #ifdef __linux__
-  #include "sd-daemon.h"
+  #include <systemd/sd-daemon.h>
 #endif
 
 ___HIDDEN ___device_tcp_server_vtbl ___device_tcp_server_table =
@@ -5859,6 +5859,7 @@ ___tls_context *tls_context;)
   else if (n == 1)
   {
     s = SD_LISTEN_FDS_START + 0;
+    set_socket_blocking_mode (s, 0);
   }
   else
   {
