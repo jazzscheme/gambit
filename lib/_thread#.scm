@@ -2060,6 +2060,9 @@
 (##define-macro (macro-update-current-time!)
   `(##get-current-time! (macro-thread-floats (macro-current-processor)) 0))
 
+(##define-macro (macro-update-current-monotonic-time!)
+  `(##get-current-monotonic-time! (macro-thread-floats (macro-current-processor)) 0))
+
 (##define-macro (macro-make-processor id)
   `(let ((processor
           (macro-construct-processor
@@ -4071,6 +4074,9 @@
 
 (##define-macro (macro-update-current-time!)
   `(##get-current-time! (macro-thread-floats (macro-current-processor)) 0))
+
+(##define-macro (macro-update-current-monotonic-time!)
+  `(##get-current-monotonic-time! (macro-thread-floats (macro-current-processor)) 0))
 
 (##define-macro (macro-make-processor)
   `(let ((processor

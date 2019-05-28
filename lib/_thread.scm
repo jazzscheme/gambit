@@ -630,7 +630,7 @@
   (cond ((##not absrel-timeout)
          #t)
         ((macro-time? absrel-timeout)
-         (macro-update-current-time!)
+         (macro-update-current-monotonic-time!)
          (let ((current-time
                 (macro-current-time
                  (macro-thread-floats (macro-current-processor))))
@@ -646,7 +646,7 @@
                 (macro-real->inexact absrel-timeout)))
            (and (##flpositive? flonum-absrel-timeout)
                 (begin
-                  (macro-update-current-time!)
+                  (macro-update-current-monotonic-time!)
                   (let ((current-time
                          (macro-current-time
                           (macro-thread-floats (macro-current-processor)))))
@@ -661,7 +661,7 @@
         ((##real? absrel-timeout)
          (let ((flonum-absrel-timeout
                 (macro-real->inexact absrel-timeout)))
-           (macro-update-current-time!)
+           (macro-update-current-monotonic-time!)
            (let ((current-time
                   (macro-current-time
                    (macro-thread-floats (macro-current-processor)))))
@@ -2507,7 +2507,7 @@
 
      ;; The processor's timeout queue is non-empty.
 
-     (macro-update-current-time!) ;; update time (in floats of processor)
+     (macro-update-current-monotonic-time!) ;; update time (in floats of processor)
 
      (let loop ()
        (macro-if-toq-next
@@ -4373,10 +4373,19 @@
 
 (define-prim (##current-time-point)
   (macro-update-current-time!)
-  (macro-current-time (macro-thread-floats (macro-current-processor))))
+  (let ((time-point (macro-current-time (macro-thread-floats (macro-current-processor)))))
+    (macro-update-current-monotonic-time!)
+    time-point))
 
 (define-prim (current-time)
   (macro-make-time (##current-time-point) #f #f #f))
+
+(define-prim (##current-monotonic-time)
+  (macro-update-current-monotonic-time!)
+  (macro-current-time (macro-thread-floats (macro-current-processor))))
+
+(define-prim (current-monotonic-time)
+  (##current-monotonic-time))
 
 (define-prim (time? obj)
   (macro-time? obj))
@@ -5859,7 +5868,7 @@
   (cond ((##not absrel-timeout)
          #t)
         ((macro-time? absrel-timeout)
-         (macro-update-current-time!)
+         (macro-update-current-monotonic-time!)
          (let ((current-time
                 (macro-current-time
                  (macro-thread-floats (macro-current-processor))))
@@ -5875,7 +5884,7 @@
                 (macro-real->inexact absrel-timeout)))
            (and (##flpositive? flonum-absrel-timeout)
                 (begin
-                  (macro-update-current-time!)
+                  (macro-update-current-monotonic-time!)
                   (let ((current-time
                          (macro-current-time
                           (macro-thread-floats (macro-current-processor)))))
@@ -5890,7 +5899,7 @@
         ((##real? absrel-timeout)
          (let ((flonum-absrel-timeout
                 (macro-real->inexact absrel-timeout)))
-           (macro-update-current-time!)
+           (macro-update-current-monotonic-time!)
            (let ((current-time
                   (macro-current-time
                    (macro-thread-floats (macro-current-processor)))))
@@ -6149,7 +6158,7 @@
     (if (##not (##eq? (macro-toq-leftmost current-processor) current-processor))
         (begin
 
-          (macro-update-current-time!)
+          (macro-update-current-monotonic-time!)
 
           (let loop ()
             (let ((leftmost (macro-toq-leftmost current-processor)))
@@ -7342,10 +7351,19 @@
 
 (define-prim (##current-time-point)
   (macro-update-current-time!)
-  (macro-current-time (macro-thread-floats (macro-current-processor))))
+  (let ((time-point (macro-current-time (macro-thread-floats (macro-current-processor)))))
+    (macro-update-current-monotonic-time!)
+    time-point))
 
 (define-prim (current-time)
   (macro-make-time (##current-time-point) #f #f #f))
+
+(define-prim (##current-monotonic-time)
+  (macro-update-current-monotonic-time!)
+  (macro-current-time (macro-thread-floats (macro-current-processor))))
+
+(define-prim (current-monotonic-time)
+  (##current-monotonic-time))
 
 (define-prim (time? obj)
   (macro-time? obj))

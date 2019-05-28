@@ -166,6 +166,10 @@ extern void ___time_get_current_time
    ___P((___time *tim),
         ());
 
+extern void ___time_get_current_monotonic_time
+   ___P((___time *tim),
+        ());
+
 extern ___U64 ___time_get_monotonic_time ___PVOID;
 
 extern ___U64 ___time_get_monotonic_time_frequency ___PVOID;

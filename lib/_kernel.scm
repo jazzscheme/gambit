@@ -4116,6 +4116,23 @@ end-of-code
    floats
    i))
 
+(define-prim (##get-current-monotonic-time! floats i)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+   ___time t;
+
+   ___time_get_current_monotonic_time (&t);
+
+   ___F64VECTORSET(___ARG1,___ARG2,___time_to_seconds (t))
+
+   ___RESULT = ___VOID;
+
+end-of-code
+
+   floats
+   i))
+
 (define-prim (##get-monotonic-time! u64vect i)
   (##declare (not interrupts-enabled))
   (##c-code #<<end-of-code
@@ -4129,21 +4146,6 @@ end-of-code
 end-of-code
 
    u64vect
-   i))
-
-;; hardcoding frequency is for a quick test
-(define-prim (##get-monotonic-time-real! floats i)
-  (##declare (not interrupts-enabled))
-  (##c-code #<<end-of-code
-
-   ___U64 time = ___time_get_monotonic_time ();
-   ___F64VECTORSET(___ARG1,___ARG2,time/1000000000.0)
-
-   ___RESULT = ___VOID;
-
-end-of-code
-
-   floats
    i))
 
 (define-prim (##get-monotonic-time-frequency! u64vect i)

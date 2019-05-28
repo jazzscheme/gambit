@@ -701,6 +701,9 @@
 (define-prim (##get-current-time! floats i)
   (error "##get-current-time! not implemented yet"))
 
+(define-prim (##get-current-monotonic-time! floats i)
+  (error "##get-current-monotonic-time! not implemented yet"))
+
 (define-prim (##mutex-signal-and-condvar-wait! mutex condvar timeout)
   (error "##mutex-signal-and-condvar-wait! not implemented yet"))
 

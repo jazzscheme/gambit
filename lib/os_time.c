@@ -321,6 +321,27 @@ ___time *tim;)
 }
 
 
+void ___time_get_current_monotonic_time
+   ___P((___time *tim),
+        (tim)
+___time *tim;)
+{
+#ifdef ___FLOAT_TIME_REPRESENTATION
+
+    *tim = ((double) ___time_get_monotonic_time()) / 1000000000;
+
+#endif
+
+#ifdef ___INT_TIME_REPRESENTATION
+
+    nano = ___time_get_monotonic_time(tim);
+    tim->secs = nsecs / 1000000000;
+    tim->nsecs = nsecs % 1000000000;
+
+#endif
+}
+
+
 ___U64 ___time_get_monotonic_time ___PVOID
 {
 #ifndef USE_mach_absolute_time
@@ -489,7 +510,7 @@ ___time *rtim;)
     {
       ___time now;
       *rtim = tim;
-      ___time_get_current_time (&now);
+      ___time_get_current_monotonic_time (&now);
       ___time_subtract (rtim, now);
     }
   else
