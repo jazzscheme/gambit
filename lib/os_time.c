@@ -328,15 +328,33 @@ ___time *tim;)
 {
 #ifdef ___FLOAT_TIME_REPRESENTATION
 
-    *tim = ((double) ___time_get_monotonic_time()) / 1000000000;
+    static int first_time = 1;
+    static double monotonic_frequency;
+    
+    if (first_time)
+    {
+        monotonic_frequency = ___time_get_monotonic_time_frequency();
+        first_time = 0;
+    }
+
+    *tim = ((double) ___time_get_monotonic_time()) / monotonic_frequency;
 
 #endif
 
 #ifdef ___INT_TIME_REPRESENTATION
 
+    static int first_time = 1;
+    static ___U64 monotonic_frequency;
+    
+    if (first_time)
+    {
+        monotonic_frequency = ___time_get_monotonic_time_frequency();
+        first_time = 0;
+    }
+    
     nano = ___time_get_monotonic_time(tim);
-    tim->secs = nsecs / 1000000000;
-    tim->nsecs = nsecs % 1000000000;
+    tim->secs = nsecs / monotonic_frequency;
+    tim->nsecs = nsecs % monotonic_frequency;
 
 #endif
 }
