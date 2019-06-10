@@ -834,6 +834,18 @@ extern ___SCMOBJ ___os_device_udp_socket_info
          ___SCMOBJ source),
         ());
 
+extern ___SCMOBJ ___os_device_udp_socket_receive_buffer_size
+   ___P((___SCMOBJ dev),
+        ());
+
+extern ___SCMOBJ ___os_device_udp_socket_send_buffer_size
+   ___P((___SCMOBJ dev),
+        ());
+
+extern ___SCMOBJ ___os_device_udp_socket_send_again_count
+   ___P((___SCMOBJ dev),
+        ());
+
 /*   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   */
 
 /* Opening and reading a directory. */

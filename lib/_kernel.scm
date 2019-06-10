@@ -4478,6 +4478,21 @@ end-of-code
             scheme-object   ;; addr
    "___os_device_udp_socket_info"))
 
+(define-prim ##os-device-udp-socket-receive-buffer-size
+  (c-lambda (scheme-object) ;; dev
+            scheme-object   ;; size
+   "___os_device_udp_socket_receive_buffer_size"))
+
+(define-prim ##os-device-udp-socket-send-buffer-size
+  (c-lambda (scheme-object) ;; dev
+            scheme-object   ;; size
+   "___os_device_udp_socket_send_buffer_size"))
+
+(define-prim ##os-device-udp-socket-send-again-count
+  (c-lambda (scheme-object) ;; dev
+            scheme-object   ;; count
+   "___os_device_udp_socket_send_again_count"))
+
 (define-prim ##os-device-directory-open-path
   (c-lambda (scheme-object  ;; path
              scheme-object) ;; ignore_hidden

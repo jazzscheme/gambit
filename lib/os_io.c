@@ -6022,6 +6022,8 @@ typedef struct ___device_udp_struct
     struct sockaddr source_sa;
     SOCKET_LEN_TYPE source_salen; /* 0 when no message yet received */
     ___BOOL source_same_as_previous; /* true when source_sa contains latest address read by ___os_device_udp_socket_info */
+    
+    int again_count;
 
 #ifdef USE_WIN32
 
@@ -6291,6 +6293,7 @@ int direction;)
   d->dest_salen = 0; /* no destination yet set */
   d->source_salen = 0; /* no message yet received */
   d->source_same_as_previous = 0;
+  d->again_count = 0;
 
 #ifdef USE_WIN32
 
@@ -10957,6 +10960,78 @@ ___SCMOBJ port_num;)
     return e;
 
   return ___FIX(___NO_ERR);
+
+#endif
+}
+
+
+___SCMOBJ ___os_device_udp_socket_receive_buffer_size
+   ___P((___SCMOBJ dev),
+        (dev)
+___SCMOBJ dev;)
+{
+#ifndef USE_NETWORKING
+
+  return ___FIX(___UNIMPL_ERR);
+
+#else
+
+  ___device_udp *d =
+    ___CAST(___device_udp*,___FIELD(dev,___FOREIGN_PTR));
+
+  int optVal;
+  SOCKET_LEN_TYPE optLen = sizeof(optVal);
+
+  optLen = sizeof(optVal);
+  getsockopt(d->s, SOL_SOCKET, SO_RCVBUF, (char*) &optVal, &optLen);
+
+  return ___FIX(optVal);
+
+#endif
+}
+
+
+___SCMOBJ ___os_device_udp_socket_send_buffer_size
+   ___P((___SCMOBJ dev),
+        (dev)
+___SCMOBJ dev;)
+{
+#ifndef USE_NETWORKING
+
+  return ___FIX(___UNIMPL_ERR);
+
+#else
+
+  ___device_udp *d =
+    ___CAST(___device_udp*,___FIELD(dev,___FOREIGN_PTR));
+
+  int optVal;
+  SOCKET_LEN_TYPE optLen = sizeof(optVal);
+
+  optLen = sizeof(optVal);
+  getsockopt(d->s, SOL_SOCKET, SO_SNDBUF, (char*) &optVal, &optLen);
+
+  return ___FIX(optVal);
+
+#endif
+}
+
+
+___SCMOBJ ___os_device_udp_socket_send_again_count
+   ___P((___SCMOBJ dev),
+        (dev)
+___SCMOBJ dev;)
+{
+#ifndef USE_NETWORKING
+
+  return ___FIX(___UNIMPL_ERR);
+
+#else
+
+  ___device_udp *d =
+    ___CAST(___device_udp*,___FIELD(dev,___FOREIGN_PTR));
+
+  return ___FIX(d->again_count);
 
 #endif
 }
