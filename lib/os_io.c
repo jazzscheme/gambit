@@ -6452,6 +6452,20 @@ ___SSIZE_T *len_done;)
    * sudo sysctl -w net.inet.udp.maxdgram=65535
    */
 
+/*
+ * It seems MacOS never returns EAGAIN or EWOULDBLOCK for UDP which makes
+ * sense as you do *not* want to try again later for UDP so simulate the
+ * same behavior for Windows...
+ */
+#ifdef USE_WIN32
+  if (n < 0)
+  {
+    self->again_count++;
+    *len_done = len;
+    return ___FIX(___NO_ERR);
+  }
+#endif
+
   if (n < 0)
     return ERR_CODE_FROM_SOCKET_CALL;
 
