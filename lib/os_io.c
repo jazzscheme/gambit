@@ -6467,7 +6467,10 @@ ___SSIZE_T *len_done;)
 #endif
 
   if (n < 0)
+  {
+    self->again_count++;
     return ERR_CODE_FROM_SOCKET_CALL;
+  }
 
   *len_done = n;
 
