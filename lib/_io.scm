@@ -8240,6 +8240,20 @@
     (macro-port-mutex-unlock! port)
     result))
 
+(define-prim (##udp-socket-receive-buffer-size-set! port size)
+
+  (macro-port-mutex-lock! port) ;; get exclusive access to port
+
+  (let ((result
+         (##os-device-udp-socket-receive-buffer-size-set!
+          (macro-condvar-name
+           (or (macro-udp-port-rdevice-condvar port)
+               (macro-udp-port-wdevice-condvar port)))
+          size)))
+
+    (macro-port-mutex-unlock! port)
+    result))
+
 (define-prim (##udp-socket-send-buffer-size port)
 
   (macro-port-mutex-lock! port) ;; get exclusive access to port
@@ -8249,6 +8263,20 @@
           (macro-condvar-name
            (or (macro-udp-port-rdevice-condvar port)
                (macro-udp-port-wdevice-condvar port))))))
+
+    (macro-port-mutex-unlock! port)
+    result))
+
+(define-prim (##udp-socket-send-buffer-size-set! port size)
+
+  (macro-port-mutex-lock! port) ;; get exclusive access to port
+
+  (let ((result
+         (##os-device-udp-socket-send-buffer-size-set!
+          (macro-condvar-name
+           (or (macro-udp-port-rdevice-condvar port)
+               (macro-udp-port-wdevice-condvar port)))
+          size)))
 
     (macro-port-mutex-unlock! port)
     result))

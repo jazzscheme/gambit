@@ -11008,6 +11008,35 @@ ___SCMOBJ dev;)
 }
 
 
+___SCMOBJ ___os_device_udp_socket_receive_buffer_size_set
+   ___P((___SCMOBJ dev,
+         ___SCMOBJ size),
+        (dev,
+         size)
+___SCMOBJ dev;
+___SCMOBJ size;)
+{
+#ifndef USE_NETWORKING
+
+  return ___FIX(___UNIMPL_ERR);
+
+#else
+
+  ___device_udp *d =
+    ___CAST(___device_udp*,___FIELD(dev,___FOREIGN_PTR));
+
+  int optVal;
+  int optLen = sizeof(optVal);
+
+  optVal = ___INT(size);
+  setsockopt(d->s, SOL_SOCKET, SO_RCVBUF, (char*) &optVal, optLen);
+
+  return ___FIX(___NO_ERR);
+
+#endif
+}
+
+
 ___SCMOBJ ___os_device_udp_socket_send_buffer_size
    ___P((___SCMOBJ dev),
         (dev)
@@ -11029,6 +11058,35 @@ ___SCMOBJ dev;)
   getsockopt(d->s, SOL_SOCKET, SO_SNDBUF, (char*) &optVal, &optLen);
 
   return ___FIX(optVal);
+
+#endif
+}
+
+
+___SCMOBJ ___os_device_udp_socket_send_buffer_size_set
+   ___P((___SCMOBJ dev,
+         ___SCMOBJ size),
+        (dev,
+         size)
+___SCMOBJ dev;
+___SCMOBJ size;)
+{
+#ifndef USE_NETWORKING
+
+  return ___FIX(___UNIMPL_ERR);
+
+#else
+
+  ___device_udp *d =
+    ___CAST(___device_udp*,___FIELD(dev,___FOREIGN_PTR));
+
+  int optVal;
+  int optLen = sizeof(optVal);
+
+  optVal = ___INT(size);
+  setsockopt(d->s, SOL_SOCKET, SO_SNDBUF, (char*) &optVal, optLen);
+
+  return ___FIX(___NO_ERR);
 
 #endif
 }

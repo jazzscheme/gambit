@@ -838,8 +838,18 @@ extern ___SCMOBJ ___os_device_udp_socket_receive_buffer_size
    ___P((___SCMOBJ dev),
         ());
 
+extern ___SCMOBJ ___os_device_udp_socket_receive_buffer_size_set
+   ___P((___SCMOBJ dev,
+         ___SCMOBJ size),
+        ());
+
 extern ___SCMOBJ ___os_device_udp_socket_send_buffer_size
    ___P((___SCMOBJ dev),
+        ());
+
+extern ___SCMOBJ ___os_device_udp_socket_send_buffer_size_set
+   ___P((___SCMOBJ dev,
+         ___SCMOBJ size),
         ());
 
 extern ___SCMOBJ ___os_device_udp_socket_send_again_count

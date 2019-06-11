@@ -4483,10 +4483,22 @@ end-of-code
             scheme-object   ;; size
    "___os_device_udp_socket_receive_buffer_size"))
 
+(define-prim ##os-device-udp-socket-receive-buffer-size-set!
+  (c-lambda (scheme-object  ;; dev
+             scheme-object) ;; size
+            scheme-object   ;; fixnum error code
+   "___os_device_udp_socket_receive_buffer_size_set"))
+
 (define-prim ##os-device-udp-socket-send-buffer-size
   (c-lambda (scheme-object) ;; dev
             scheme-object   ;; size
    "___os_device_udp_socket_send_buffer_size"))
+
+(define-prim ##os-device-udp-socket-send-buffer-size-set!
+  (c-lambda (scheme-object  ;; dev
+             scheme-object) ;; size
+            scheme-object   ;; fixnum error code
+   "___os_device_udp_socket_send_buffer_size_set"))
 
 (define-prim ##os-device-udp-socket-send-again-count
   (c-lambda (scheme-object) ;; dev
