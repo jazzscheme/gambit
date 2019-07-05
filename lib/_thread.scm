@@ -6416,6 +6416,10 @@
 (define-prim (##thread-report-scheduler-error! code)
 
   (##declare (not interrupts-enabled))
+  
+  (pp (list 'Scheduler 'error code))
+  
+  (##exit)
 
   (##thread-int!
    (macro-primordial-thread)
