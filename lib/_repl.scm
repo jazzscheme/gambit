@@ -1482,7 +1482,7 @@
   (##void))
 
 (define-prim (##display-thread-state thread port)
-  (let ((now (##current-time-point)))
+  (let ((now (##current-monotonic-time)))
     (##display-thread-state-relative thread port now)))
 
 (define-prim (##display-thread-state-relative thread port time-point)
@@ -1547,7 +1547,7 @@
 
 (define-prim (##display-thread-group-state tgroup port)
   (let* ((threads (##tgroup->thread-vector tgroup))
-         (now (##current-time-point)))
+         (now (##current-monotonic-time)))
     (let loop ((i 0))
       (if (##fx< i (##vector-length threads))
           (let ((thread (##vector-ref threads i)))
