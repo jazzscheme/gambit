@@ -5849,8 +5849,10 @@ ___tls_context *tls_context;)
   SOCKET_TYPE s;
   ___device_tcp_server *d;
 
+  static int sd_listen_done = 0;
+
 #ifdef __linux__
-  int n = sd_listen_fds(0);
+  int n = (sd_listen_done) ? -1 : sd_listen_fds(0);
   if (n > 1)
   {
     fprintf(stderr, "Too many file descriptors received.\n");
@@ -5860,6 +5862,7 @@ ___tls_context *tls_context;)
   {
     s = SD_LISTEN_FDS_START + 0;
     set_socket_blocking_mode (s, 0);
+    sd_listen_done = 1;
   }
   else
   {
