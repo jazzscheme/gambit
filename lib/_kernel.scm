@@ -4201,6 +4201,10 @@ end-of-code
 ;; os
 (c-feature USE_POSIX)
 (c-feature USE_WIN32)
+;; threads
+(c-feature ___USE_POSIX_THREAD_SYSTEM)
+(c-feature ___USE_WIN32_THREAD_SYSTEM)
+(c-feature ___USE_NO_THREAD_SYSTEM)
 ;; pumps
 (c-feature USE_PUMPS)
 ;; real time
