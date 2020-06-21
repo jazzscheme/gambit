@@ -6661,7 +6661,7 @@ int ignore_hidden;)
 
   d->ignore_hidden = ignore_hidden;
 
-  d->dir = opendir (path);
+  d->dir = ___opendir_no_EINTR (path);
 
   if (d->dir == NULL)
     {
@@ -8543,7 +8543,7 @@ int *slave_fd_ptr;)
 #else
 
   *slave_fd_ptr = -1;
-  return *master_fd_ptr = open ("/dev/ptmx", O_RDWR | O_NOCTTY);
+  return *master_fd_ptr = ___open_no_EINTR ("/dev/ptmx", O_RDWR | O_NOCTTY);
 
 #endif
 #endif
@@ -8618,7 +8618,7 @@ int *slave_fd;)
   if (grantpt (master_fd) >= 0 &&
       unlockpt (master_fd) >= 0 &&
       (name = ptsname (master_fd)) != NULL &&
-      (fd = open (name, O_RDWR)) >= 0)
+      (fd = ___open_no_EINTR (name, O_RDWR)) >= 0)
     {
       int tmp;
 
@@ -9413,12 +9413,12 @@ int mode;)
   ___printf ("path=\"%s\" fl=%d\n", path, fl);
 #endif
 
-  if ((fd = open (path,
-                  fl,
+  if ((fd = ___open_no_EINTR (path,
+                              fl,
 #ifdef O_BINARY
-                  O_BINARY|
+                              O_BINARY|
 #endif
-                  mode))
+                              mode))
       < 0)
     return fnf_or_err_code_from_errno ();
 

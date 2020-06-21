@@ -822,15 +822,15 @@ ___device_tty *self;)
         ctermid (term_name); /* get controlling terminal's name */
 #endif
 
-        if ((fd = open (term_name,
+        if ((fd = ___open_no_EINTR (term_name,
 #ifdef LINEEDITOR_WITH_NONBLOCKING_IO
-                        O_NONBLOCK |
+                                    O_NONBLOCK |
 #endif
 #ifdef O_BINARY
-                        O_BINARY |
+                                    O_BINARY |
 #endif
-                        O_RDWR,
-                        0))
+                                    O_RDWR,
+                                    0))
             < 0)
           {
 #ifdef ENXIO

@@ -11,6 +11,7 @@
 #define ___VERSION 408009
 #include "gambit.h"
 
+#include "os_setup.h"
 #include "os_base.h"
 #include "os_shell.h"
 #include "os_files.h"
@@ -1487,23 +1488,23 @@ ___SCMOBJ path2;)
           int fd1;
           int fd2;
 
-          if ((fd1 = open (___CAST(___STRING_TYPE(___COPY_FILE_PATH_CE_SELECT),
-                                   cpath1),
+          if ((fd1 = ___open_no_EINTR (___CAST(___STRING_TYPE(___COPY_FILE_PATH_CE_SELECT),
+                                               cpath1),
 #ifdef O_BINARY
-                           O_BINARY|
+                                       O_BINARY|
 #endif
-                           O_RDONLY,
-                           0777)) < 0)
+                                       O_RDONLY,
+                                       0777)) < 0)
             e = fnf_or_err_code_from_errno ();
           else
             {
-              if ((fd2 = open (___CAST(___STRING_TYPE(___COPY_FILE_PATH_CE_SELECT),
-                                       cpath2),
+              if ((fd2 = ___open_no_EINTR (___CAST(___STRING_TYPE(___COPY_FILE_PATH_CE_SELECT),
+                                                   cpath2),
 #ifdef O_BINARY
-                               O_BINARY|
+                                           O_BINARY|
 #endif
-                               O_WRONLY|O_CREAT|O_EXCL,
-                               0777)) < 0)
+                                           O_WRONLY|O_CREAT|O_EXCL,
+                                           0777)) < 0)
                 e = fnf_or_err_code_from_errno ();
               else
                 {

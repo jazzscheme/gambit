@@ -29,6 +29,24 @@ extern ___SSIZE_T ___read_no_EINTR
          ___SIZE_T len),
         ());
 
+#ifdef USE_open
+
+int ___open_no_EINTR
+   ___P((char *path,
+         int flags,
+         mode_t mode),
+        ());
+
+#endif
+
+#ifdef USE_opendir
+
+extern DIR *___opendir_no_EINTR
+   ___P((char *path),
+        ());
+
+#endif
+
 extern int ___close_no_EINTR
    ___P((int fd),
         ());
