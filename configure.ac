@@ -875,6 +875,20 @@ fi
 
 ###############################################################################
 #
+# Check whether to enable systemd support
+
+AC_ARG_ENABLE(systemd,
+              AC_HELP_STRING([--enable-systemd],
+                             [Enable systemd support (default is NO)]),
+              ENABLE_SYSTEMD=$enableval,
+              ENABLE_SYSTEMD=no)
+
+if test "$ENABLE_SYSTEMD" = yes; then
+  AC_DEFINE([USE_SYSTEMD],[],[Enable systemd support])
+fi
+
+###############################################################################
+#
 # Check if the runtime system must be compiled to support multiple
 # Gambit VM instances or not.  A Gambit VM instance has its own global
 # environment and heap, separate from other Gambit VM instances.
@@ -1419,6 +1433,10 @@ else
                AC_SEARCH_LIBS(clock_gettime,rt)
 
                AC_SEARCH_LIBS(timeBeginPeriod,winmm)
+
+               if test "$ENABLE_SYSTEMD" = yes; then
+                 LIBS="$LIBS -lsystemd"
+               fi
                ;;
     esac
 

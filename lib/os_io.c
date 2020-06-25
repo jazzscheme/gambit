@@ -5807,7 +5807,7 @@ int level;)
   return ___FIX(___NO_ERR);
 }
 
-#ifdef __linux__
+#ifdef USE_SYSTEMD
   #include <systemd/sd-daemon.h>
 #endif
 
@@ -5849,9 +5849,9 @@ ___tls_context *tls_context;)
   SOCKET_TYPE s;
   ___device_tcp_server *d;
 
+#ifdef USE_SYSTEMD
   static int sd_listen_done = 0;
 
-#ifdef __linux__
   int n = (sd_listen_done) ? -1 : sd_listen_fds(0);
   if (n > 1)
   {
@@ -5880,7 +5880,7 @@ ___tls_context *tls_context;)
       return e;
     }
 
-#ifdef __linux__
+#ifdef USE_SYSTEMD
   }
 #endif
 
