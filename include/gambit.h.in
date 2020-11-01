@@ -1369,9 +1369,6 @@
 #define ___BOOL @CONF_BOOL@
 #endif
 
-#define ___USE_CPLUSPLUS_NEW_DELETE
-#define ___USE_CPLUSPLUS_CLEANUP
-
 #else
 
 #define ___BEGIN_C_LINKAGE
