@@ -4373,9 +4373,7 @@
 
 (define-prim (##current-time-point)
   (macro-update-current-time!)
-  (let ((time-point (macro-current-time (macro-thread-floats (macro-current-processor)))))
-    (macro-update-current-monotonic-time!)
-    time-point))
+  (macro-current-time (macro-thread-floats (macro-current-processor))))
 
 (define-prim (current-time)
   (macro-make-time (##current-time-point) #f #f #f))
@@ -7355,9 +7353,7 @@
 
 (define-prim (##current-time-point)
   (macro-update-current-time!)
-  (let ((time-point (macro-current-time (macro-thread-floats (macro-current-processor)))))
-    (macro-update-current-monotonic-time!)
-    time-point))
+  (macro-current-time (macro-thread-floats (macro-current-processor))))
 
 (define-prim (current-time)
   (macro-make-time (##current-time-point) #f #f #f))
