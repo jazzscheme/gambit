@@ -441,9 +441,9 @@ ___HIDDEN void cleanup_dynamic_load ___PVOID
       CloseConnection (&p->descr);
 #endif
 
-#ifdef USE_dlopen
-      dlclose (p->descr);
-#endif
+// #ifdef USE_dlopen
+//       dlclose (p->descr);
+// #endif
 
 #ifdef USE_NSLinkModule
       NSUnLinkModule (p->descr, NSUNLINKMODULE_OPTION_NONE);
