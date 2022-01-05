@@ -77,6 +77,9 @@ typedef struct ___dyn_module_struct
 extern ___dyn_module ___dyn_mod;
 
 
+extern void ___use_dlclose();
+
+
 /*---------------------------------------------------------------------------*/
 
 /* Dynamic code loading. */

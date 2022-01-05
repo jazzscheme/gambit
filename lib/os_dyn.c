@@ -405,6 +405,19 @@ void **linker;)
 }
 
 
+#ifdef USE_dlopen
+static int use_dlclose = 0;
+#endif
+
+
+___EXP_FUNC(void,___use_dlclose) ___PVOID
+{
+#ifdef USE_dlopen
+	use_dlclose = 1;
+#endif
+}
+
+
 ___HIDDEN void cleanup_dynamic_load ___PVOID
 {
 #ifndef ___DONT_UNLOAD_DYN_CODE
@@ -441,9 +454,10 @@ ___HIDDEN void cleanup_dynamic_load ___PVOID
       CloseConnection (&p->descr);
 #endif
 
-// #ifdef USE_dlopen
-//       dlclose (p->descr);
-// #endif
+#ifdef USE_dlopen
+		if (use_dlclose)
+      	dlclose (p->descr);
+#endif
 
 #ifdef USE_NSLinkModule
       NSUnLinkModule (p->descr, NSUNLINKMODULE_OPTION_NONE);

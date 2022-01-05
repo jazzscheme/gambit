@@ -2034,6 +2034,10 @@ end-of-code
    mask
    new-settings))
 
+(define-prim (##use-dlclose)
+  (##declare (not interrupts-enabled))
+  (##c-code "___use_dlclose (); ___RESULT = ___VOID;"))
+
 ;;;----------------------------------------------------------------------------
 
 ;;; CPU information.
