@@ -263,7 +263,7 @@
 (define ##path->container-hook #f)
 
 (define-prim (##path->container-hook-set! x)
-  (set! ##path->container-hook #f))
+  (set! ##path->container-hook x))
 
 (define-prim (##path->container path)
   ;; path is a string and result is an arbitrary object
@@ -275,7 +275,7 @@
 (define ##container->path-hook #f)
 
 (define-prim (##container->path-hook-set! x)
-  (set! ##container->path-hook #f))
+  (set! ##container->path-hook x))
 
 (define-prim (##container->path container)
   ;; container is an arbitrary object and result must be a string or #f
