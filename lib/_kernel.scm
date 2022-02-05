@@ -4482,6 +4482,17 @@ end-of-code
             scheme-object   ;; addr
    "___os_device_udp_socket_info"))
 
+(define-prim ##os-device-udp-socket-tos
+  (c-lambda (scheme-object) ;; dev
+            scheme-object   ;; tos
+   "___os_device_udp_socket_tos"))
+
+(define-prim ##os-device-udp-socket-tos-set!
+  (c-lambda (scheme-object  ;; dev
+             scheme-object) ;; tos
+            scheme-object   ;; fixnum error code
+   "___os_device_udp_socket_tos_set"))
+
 (define-prim ##os-device-udp-socket-receive-buffer-size
   (c-lambda (scheme-object) ;; dev
             scheme-object   ;; size

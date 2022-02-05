@@ -834,6 +834,15 @@ extern ___SCMOBJ ___os_device_udp_socket_info
          ___SCMOBJ source),
         ());
 
+extern ___SCMOBJ ___os_device_udp_socket_tos
+   ___P((___SCMOBJ dev),
+        ());
+
+extern ___SCMOBJ ___os_device_udp_socket_tos_set
+   ___P((___SCMOBJ dev,
+         ___SCMOBJ tos),
+        ());
+
 extern ___SCMOBJ ___os_device_udp_socket_receive_buffer_size
    ___P((___SCMOBJ dev),
         ());
