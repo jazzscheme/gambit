@@ -195,6 +195,10 @@
          cc-options
          ld-options-prelude
          ld-options)
+  ;; hack around leaving hide-console in options breaking stuff somehow
+  (let ((hide-console? (and (##pair? options) (##eq? (##car options) 'hide-console))))
+    (if hide-console?
+        (set! options (##cdr options)))
   (let* ((options
           (##compile-options-normalize options))
          (target
@@ -277,7 +281,7 @@
                    (##list target-filename)
                    output-filename-no-dir
                    (##assq 'verbose options)
-                   (##assq 'hide-console options)
+                   hide-console?
                    (##list (##cons "CC_OPTIONS" cc-options)
                            (##cons "LD_OPTIONS_PRELUDE" ld-options-prelude)
                            (##cons "LD_OPTIONS" ld-options)))))
@@ -288,7 +292,7 @@
                  output-filename
                  (##raise-error-exception
                   "target compilation or link failed while compiling"
-                  (##list filename))))))))
+                  (##list filename)))))))))
 
 (define (##build-executable
          obj-files
