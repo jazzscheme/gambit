@@ -793,6 +793,7 @@ extern ___SCMOBJ ___os_make_tls_context
    ___P((___SCMOBJ min_tls_version,
          ___SCMOBJ options,
          ___SCMOBJ certificate_path,
+         ___SCMOBJ certificate_chain_path,
          ___SCMOBJ private_key_path,
          ___SCMOBJ dh_params_path,
          ___SCMOBJ elliptic_curve_name,

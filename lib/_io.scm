@@ -6578,6 +6578,7 @@
               (min-version (macro-absent-obj))
               (options (macro-absent-obj))
               (certificate (macro-absent-obj))
+              (certificate-chain (macro-absent-obj))
               (private-key (macro-absent-obj))
               (diffie-hellman-parameters (macro-absent-obj))
               (elliptic-curve (macro-absent-obj))
@@ -6585,6 +6586,7 @@
   (macro-force-vars (min-version
                      options
                      certificate
+                     certificate-chain
                      private-key
                      diffie-hellman-parameters
                      elliptic-curve
@@ -6637,6 +6639,7 @@
                              min-version: min-version
                              options: options
                              certificate: certificate
+                             certificate-chain: certificate-chain
                              private-key: private-key
                              diffie-hellman-parameters: diffie-hellman-parameters
                              elliptic-curve: elliptic-curve
@@ -6666,6 +6669,7 @@
                              min-version: min-version
                              options: options
                              certificate: certificate
+                             certificate-chain: certificate-chain
                              private-key: private-key
                              diffie-hellman-parameters: diffie-hellman-parameters
                              elliptic-curve: elliptic-curve
@@ -6676,7 +6680,7 @@
                min-ver-code
                opts-code)
         (if (##eq? certificate (macro-absent-obj))
-            (check-private-key
+            (check-certificate-chain
              arg-num
              min-ver-code
              opts-code
@@ -6689,6 +6693,38 @@
                  min-version: min-version
                  options: options
                  certificate: certificate
+                 certificate-chain: certificate-chain
+                 private-key: private-key
+                 diffie-hellman-parameters: diffie-hellman-parameters
+                 elliptic-curve: elliptic-curve
+                 client-ca: client-ca)
+                (check-certificate-chain
+                 arg-num
+                 min-ver-code
+                 opts-code
+                 certificate)))))
+
+      (define (check-certificate-chain
+               arg-num
+               min-ver-code
+               opts-code
+               cert)
+        (if (##eq? certificate-chain (macro-absent-obj))
+            (check-private-key
+             arg-num
+             min-ver-code
+             opts-code
+             cert
+             #f)
+            (let ((arg-num (##fx+ arg-num 2)))
+              (macro-check-string
+                certificate-chain
+                arg-num
+                (make-tls-context
+                 min-version: min-version
+                 options: options
+                 certificate: certificate
+                 certificate-chain: certificate-chain
                  private-key: private-key
                  diffie-hellman-parameters: diffie-hellman-parameters
                  elliptic-curve: elliptic-curve
@@ -6697,19 +6733,22 @@
                  arg-num
                  min-ver-code
                  opts-code
-                 certificate)))))
+                 cert
+                 certificate-chain)))))
 
       (define (check-private-key
                arg-num
                min-ver-code
                opts-code
-               cert)
+               cert
+               cert-chain)
         (if (##eq? private-key (macro-absent-obj))
             (check-diffie-hellman-parameters
              arg-num
              min-ver-code
              opts-code
              cert
+             cert-chain
              cert)
             (let ((arg-num (##fx+ arg-num 2)))
               (macro-check-string
@@ -6719,6 +6758,7 @@
                  min-version: min-version
                  options: options
                  certificate: certificate
+                 certificate-chain: certificate-chain
                  private-key: private-key
                  diffie-hellman-parameters: diffie-hellman-parameters
                  elliptic-curve: elliptic-curve
@@ -6728,6 +6768,7 @@
                  min-ver-code
                  opts-code
                  cert
+                 cert-chain
                  private-key)))))
 
       (define (check-diffie-hellman-parameters
@@ -6735,6 +6776,7 @@
                min-ver-code
                opts-code
                cert
+               cert-chain
                priv-key)
         (if (##eq? diffie-hellman-parameters (macro-absent-obj))
             (check-elliptic-curve
@@ -6742,6 +6784,7 @@
              min-ver-code
              opts-code
              cert
+             cert-chain
              priv-key
              #f)
             (let ((arg-num (##fx+ arg-num 2)))
@@ -6752,6 +6795,7 @@
                  min-version: min-version
                  options: options
                  certificate: certificate
+                 certificate-chain: certificate-chain
                  private-key: private-key
                  diffie-hellman-parameters: diffie-hellman-parameters
                  elliptic-curve: elliptic-curve
@@ -6761,6 +6805,7 @@
                  min-ver-code
                  opts-code
                  cert
+                 cert-chain
                  priv-key
                  diffie-hellman-parameters)))))
 
@@ -6769,6 +6814,7 @@
                min-ver-code
                opts-code
                cert
+               cert-chain
                priv-key
                dh-params)
         (if (##eq? elliptic-curve (macro-absent-obj))
@@ -6777,6 +6823,7 @@
              min-ver-code
              opts-code
              cert
+             cert-chain
              priv-key
              dh-params
              #f)
@@ -6788,6 +6835,7 @@
                  min-version: min-version
                  options: options
                  certificate: certificate
+                 certificate-chain: certificate-chain
                  private-key: private-key
                  diffie-hellman-parameters: diffie-hellman-parameters
                  elliptic-curve: elliptic-curve
@@ -6797,6 +6845,7 @@
                  min-ver-code
                  opts-code
                  cert
+                 cert-chain
                  priv-key
                  dh-params
                  elliptic-curve)))))
@@ -6806,6 +6855,7 @@
                min-ver-code
                opts-code
                cert
+               cert-chain
                priv-key
                dh-params
                el-curve)
@@ -6815,6 +6865,7 @@
              min-ver-code
              opts-code
              cert
+             cert-chain
              priv-key
              dh-params
              el-curve
@@ -6827,6 +6878,7 @@
                  min-version: min-version
                  options: options
                  certificate: certificate
+                 certificate-chain: certificate-chain
                  private-key: private-key
                  diffie-hellman-parameters: diffie-hellman-parameters
                  elliptic-curve: elliptic-curve
@@ -6836,6 +6888,7 @@
                  min-ver-code
                  opts-code
                  cert
+                 cert-chain
                  priv-key
                  dh-params
                  el-curve
@@ -6846,6 +6899,7 @@
                min-ver-code
                opts-code
                cert
+               cert-chain
                priv-key
                dh-params
                el-curve
@@ -6855,6 +6909,7 @@
                 min-ver-code
                 opts-code
                 cert
+                cert-chain
                 priv-key
                 dh-params
                 el-curve
@@ -6867,6 +6922,7 @@
                        min-version: min-version
                        options: options
                        certificate: certificate
+                       certificate-chain: certificate-chain
                        private-key: private-key
                        diffie-hellman-parameters: diffie-hellman-parameters
                        elliptic-curve: elliptic-curve

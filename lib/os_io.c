@@ -3822,6 +3822,7 @@ typedef struct ___tls_context_t
 
   /* Client and Server options */
   char *certificate_path;
+  char *certificate_chain_path;
   char *private_key_path;
 
   /* Server-only options */
@@ -3842,6 +3843,8 @@ void *x;)
 
   if (c->certificate_path != NULL)
     ___release_string (c->certificate_path);
+  if (c->certificate_chain_path != NULL)
+    ___release_string (c->certificate_chain_path);
   if (c->private_key_path != NULL)
     ___release_string (c->private_key_path);
   if (c->dh_params_path != NULL)
@@ -3942,6 +3945,7 @@ ___SCMOBJ ___os_make_tls_context
    ___P((___SCMOBJ min_tls_version,
          ___SCMOBJ options,
          ___SCMOBJ certificate_path,
+         ___SCMOBJ certificate_chain_path,
          ___SCMOBJ private_key_path,
          ___SCMOBJ dh_params_path,
          ___SCMOBJ elliptic_curve_name,
@@ -3949,6 +3953,7 @@ ___SCMOBJ ___os_make_tls_context
         (min_tls_version,
          options,
          certificate_path,
+         certificate_chain_path,
          private_key_path,
          dh_params_path,
          elliptic_curve_name,
@@ -3956,6 +3961,7 @@ ___SCMOBJ ___os_make_tls_context
 ___SCMOBJ min_tls_version;
 ___SCMOBJ options;
 ___SCMOBJ certificate_path;
+___SCMOBJ certificate_chain_path;
 ___SCMOBJ private_key_path;
 ___SCMOBJ dh_params_path;
 ___SCMOBJ elliptic_curve_name;
@@ -4039,6 +4045,7 @@ ___SCMOBJ client_ca_path;)
   c->options = ___INT(options);
 
   c->certificate_path = NULL;
+  c->certificate_chain_path = NULL;
   c->private_key_path = NULL;
   c->dh_params_path = NULL;
   c->elliptic_curve_name = NULL;
@@ -4049,6 +4056,14 @@ ___SCMOBJ client_ca_path;)
                  (___PSA(___PSTATE)
                   certificate_path,
                   ___CAST(void**,&c->certificate_path),
+                  3,
+                  ___CE(___OPENSSL_PATH_CE_SELECT),
+                  0)
+       != ___FIX(___NO_ERR)) ||
+      (scm_e = ___SCMOBJ_to_STRING
+                 (___PSA(___PSTATE)
+                  certificate_chain_path,
+                  ___CAST(void**,&c->certificate_chain_path),
                   3,
                   ___CE(___OPENSSL_PATH_CE_SELECT),
                   0)
@@ -4599,6 +4614,7 @@ ___SCMOBJ ___os_make_tls_context
    ___P((___SCMOBJ min_tls_version,
          ___SCMOBJ options,
          ___SCMOBJ certificate_path,
+         ___SCMOBJ certificate_chain_path,
          ___SCMOBJ private_key_path,
          ___SCMOBJ dh_params_path,
          ___SCMOBJ elliptic_curve_name,
@@ -4606,6 +4622,7 @@ ___SCMOBJ ___os_make_tls_context
         (min_tls_version,
          options,
          certificate_path,
+         certificate_chain_path,
          private_key_path,
          dh_params_path,
          elliptic_curve_name,
@@ -4613,6 +4630,7 @@ ___SCMOBJ ___os_make_tls_context
 ___SCMOBJ min_tls_version;
 ___SCMOBJ options;
 ___SCMOBJ certificate_path;
+___SCMOBJ certificate_chain_path;
 ___SCMOBJ private_key_path;
 ___SCMOBJ dh_params_path;
 ___SCMOBJ elliptic_curve_name;

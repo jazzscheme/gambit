@@ -4403,6 +4403,7 @@ end-of-code
   (c-lambda (scheme-object  ;; min_tls_version
              scheme-object  ;; options
              scheme-object  ;; certificate_path
+             scheme-object  ;; certificate_chain_path
              scheme-object  ;; private_key_path
              scheme-object  ;; dh_params_path
              scheme-object  ;; elliptic_curve_name
