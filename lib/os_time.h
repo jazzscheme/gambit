@@ -174,6 +174,8 @@ extern ___U64 ___time_get_monotonic_jiffies ___PVOID;
 
 extern ___U64 ___time_get_monotonic_frequency ___PVOID;
 
+extern ___U64 ___time_get_monotonic_nanoseconds ___PVOID;
+
 extern ___F64 ___time_to_seconds
    ___P((___time tim),
         ());

@@ -4167,6 +4167,21 @@ end-of-code
    u64vect
    i))
 
+(define-prim (##get-monotonic-nanoseconds! u64vect i)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+   ___STORE_U64(___BODY_AS(___ARG1,___tSUBTYPED),
+                ___INT(___ARG2),
+                ___time_get_monotonic_nanoseconds ());
+
+   ___RESULT = ___VOID;
+
+end-of-code
+
+   u64vect
+   i))
+
 (define-prim (##get-bytes-allocated! floats i)
   (##declare (not interrupts-enabled))
   (##c-code #<<end-of-code

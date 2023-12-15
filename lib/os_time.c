@@ -435,6 +435,21 @@ ___U64 ___time_get_monotonic_frequency ___PVOID
 }
 
 
+___U64 ___time_get_monotonic_nanoseconds ___PVOID
+{
+    static int first_time = 1;
+    static double fraction;
+    
+    if (first_time)
+    {
+        fraction = (double) 1000000000 / (double) ___time_get_monotonic_frequency();
+        first_time = 0;
+    }
+    
+    return ___time_get_monotonic_jiffies() * fraction;
+}
+
+
 ___F64 ___time_to_seconds
    ___P((___time tim),
         (tim)
