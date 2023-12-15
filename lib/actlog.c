@@ -216,7 +216,7 @@ ___U32 color;)
       ___ps->actlog.last = --last;
 
       last->type = t;
-      last->stamp = ___time_get_monotonic_time ();
+      last->stamp = ___time_get_monotonic_jiffies ();
     }
 
 #endif
@@ -259,7 +259,7 @@ ___U32 color;)
       ___ps->actlog.last = --last;
 
       last->type = t;
-      last->stamp = ___time_get_monotonic_time ();
+      last->stamp = ___time_get_monotonic_jiffies ();
     }
 
 #endif
@@ -281,7 +281,7 @@ ___processor_state ___ps;)
 
       if (___ps->actlog.sp > 0)
         last->type = ___ps->actlog.stack[--___ps->actlog.sp];
-      last->stamp = ___time_get_monotonic_time ();
+      last->stamp = ___time_get_monotonic_jiffies ();
     }
 
 #endif
@@ -448,7 +448,7 @@ char *filename;)
 
   ___vms->actlog.auto_dump = 0;
 
-  write_U64 (out, ___time_get_monotonic_time_frequency ());
+  write_U64 (out, ___time_get_monotonic_frequency ());
 
   write_U32 (out, ___vms->actlog.nb_activities);
 

@@ -300,11 +300,11 @@ ___time *tim;)
     
     if (first_time)
     {
-        monotonic_frequency = ___time_get_monotonic_time_frequency();
+        monotonic_frequency = ___time_get_monotonic_frequency();
         first_time = 0;
     }
 
-    *tim = ((double) ___time_get_monotonic_time()) / monotonic_frequency;
+    *tim = ((double) ___time_get_monotonic_jiffies()) / monotonic_frequency;
 
 #endif
 
@@ -315,11 +315,11 @@ ___time *tim;)
     
     if (first_time)
     {
-        monotonic_frequency = ___time_get_monotonic_time_frequency();
+        monotonic_frequency = ___time_get_monotonic_frequency();
         first_time = 0;
     }
     
-    nano = ___time_get_monotonic_time(tim);
+    nano = ___time_get_monotonic_jiffies(tim);
     tim->secs = nsecs / monotonic_frequency;
     tim->nsecs = nsecs % monotonic_frequency;
 
@@ -327,7 +327,7 @@ ___time *tim;)
 }
 
 
-___U64 ___time_get_monotonic_time ___PVOID
+___U64 ___time_get_monotonic_jiffies ___PVOID
 {
 #ifndef USE_mach_absolute_time
 #ifndef USE_QueryPerformanceCounter
@@ -387,7 +387,7 @@ ___U64 ___time_get_monotonic_time ___PVOID
 }
 
 
-___U64 ___time_get_monotonic_time_frequency ___PVOID
+___U64 ___time_get_monotonic_frequency ___PVOID
 {
 #ifndef USE_mach_absolute_time
 #ifndef USE_QueryPerformanceCounter

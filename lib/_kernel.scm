@@ -4137,13 +4137,13 @@ end-of-code
    floats
    i))
 
-(define-prim (##get-monotonic-time! u64vect i)
+(define-prim (##get-monotonic-jiffies! u64vect i)
   (##declare (not interrupts-enabled))
   (##c-code #<<end-of-code
 
    ___STORE_U64(___BODY_AS(___ARG1,___tSUBTYPED),
                 ___INT(___ARG2),
-                ___time_get_monotonic_time ());
+                ___time_get_monotonic_jiffies ());
 
    ___RESULT = ___VOID;
 
@@ -4152,13 +4152,13 @@ end-of-code
    u64vect
    i))
 
-(define-prim (##get-monotonic-time-frequency! u64vect i)
+(define-prim (##get-monotonic-frequency! u64vect i)
   (##declare (not interrupts-enabled))
   (##c-code #<<end-of-code
 
    ___STORE_U64(___BODY_AS(___ARG1,___tSUBTYPED),
                 ___INT(___ARG2),
-                ___time_get_monotonic_time_frequency ());
+                ___time_get_monotonic_frequency ());
 
    ___RESULT = ___VOID;
 
