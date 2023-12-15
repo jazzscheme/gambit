@@ -4313,6 +4313,12 @@ ___SCMOBJ client_ca_path;)
             {
               ___release_rc_tls_context (c);
               return ___FIX(___TLS_CERTIFICATE_FILE_ERR);
+              }
+          if (c->certificate_chain_path != NULL && SSL_CTX_use_certificate_chain_file (c->tls_ctx,
+                                                  c->certificate_chain_path) <= 0)
+            {
+              ___release_rc_tls_context (c);
+              return ___FIX(___TLS_CERTIFICATE_FILE_ERR);
             }
           if (SSL_CTX_use_PrivateKey_file
               (c->tls_ctx, c->private_key_path, SSL_FILETYPE_PEM) <= 0)
