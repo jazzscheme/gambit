@@ -241,5 +241,53 @@ extern ___F64 ___bytes_allocated
    ___P((___PSDNC),
         ());
 
+#ifdef ___TRACK_ALLOCATIONS
+
+extern ___SCMOBJ ___track_allocation
+   ___P((___SCMOBJ obj, const char* file, int line),
+        ());
+
+extern ___SCMOBJ ___update_allocation
+   ___P((___SCMOBJ obj, const char* file, int line),
+        ());
+
+extern void ___update_stack
+   ___P((___SCMOBJ obj, ___SCMOBJ stack),
+        ());
+
+extern void ___reset_allocations
+   ___P((),
+        ());
+
+extern int ___count_allocations
+   ___P((),
+        ());
+
+extern int ___all_allocations
+   ___P((),
+        ());
+
+extern ___SCMOBJ ___snapshot_allocations
+   ___P((),
+        ());
+
+extern ___SCMOBJ ___get_allocation_object
+   ___P((int),
+        ());
+
+extern const char* ___get_allocation_file
+   ___P((int),
+        ());
+
+extern int ___get_allocation_line
+   ___P((int),
+        ());
+
+extern ___SCMOBJ ___get_allocation_stack
+   ___P((int),
+        ());
+
+#endif
+
 
 #endif

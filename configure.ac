@@ -875,6 +875,24 @@ fi
 
 ###############################################################################
 #
+# Check whether to enable tracking allocations
+
+AC_ARG_ENABLE(track-allocations,
+              AC_HELP_STRING([--enable-track-allocations],
+                             [Enable tracking allocations (default is NO)]),
+              ENABLE_TRACK_ALLOCATIONS=$enableval,
+              ENABLE_TRACK_ALLOCATIONS=no)
+
+if test "$ENABLE_TRACK_ALLOCATIONS" = yes; then
+  CONF_TRACK_ALLOCATIONS="___TRACK_ALLOCATIONS"
+else
+  CONF_TRACK_ALLOCATIONS="___NO_TRACK_ALLOCATIONS"
+fi
+
+AC_SUBST(CONF_TRACK_ALLOCATIONS)
+
+###############################################################################
+#
 # Check whether to enable systemd support
 
 AC_ARG_ENABLE(systemd,

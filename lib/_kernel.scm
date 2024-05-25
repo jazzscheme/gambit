@@ -3138,7 +3138,7 @@ end-of-code
        while (!___TESTHEADERTAG(*ptr,___sVECTOR))
          ptr -= ___LS;
        ptr += ___LS;
-      ___RESULT = ___SUBTYPED_FROM_START(ptr);
+      ___RESULT = ___SUBTYPED_CONSTANT(ptr);
      }
    else
      ___RESULT = ___FAL;
@@ -4194,6 +4194,164 @@ end-of-code
 
    floats
    i))
+
+(define-prim (##tracking-enabled?)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+   ___RESULT = ___TRU;
+#else
+   ___RESULT = ___FAL;
+#endif
+
+end-of-code
+
+  ))
+
+(define-prim (##tracking-allocations?)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+   ___RESULT = ((___GSTATE->tracking_allocations) ? ___TRU : ___FAL);
+#endif
+
+end-of-code
+
+  ))
+
+(define-prim (##track-allocations)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+   ___GSTATE->tracking_allocations = 1;
+   ___RESULT = ___VOID;
+#endif
+
+end-of-code
+
+  ))
+
+(define-prim (##untrack-allocations)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+   ___GSTATE->tracking_allocations = 0;
+   ___RESULT = ___VOID;
+#endif
+   
+end-of-code
+
+  ))
+
+(define-prim (##update-stack obj stack)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+   ___update_stack(___ARG1, ___ARG2);
+   ___RESULT = ___VOID;
+#endif
+   
+end-of-code
+
+  obj
+  stack))
+
+(define-prim (##reset-allocations)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+   ___reset_allocations();
+   ___RESULT = ___VOID;
+#endif
+   
+end-of-code
+
+  ))
+
+(define-prim (##count-allocations)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+   ___RESULT = ___FIX(___count_allocations());
+#endif
+   
+end-of-code
+
+  ))
+
+(define-prim (##all-allocations)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+   ___RESULT = ___FIX(___all_allocations());
+#endif
+   
+end-of-code
+
+  ))
+
+(define-prim (##snapshot-allocations)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+   ___RESULT = ___snapshot_allocations();
+#endif
+   
+end-of-code
+
+  ))
+
+(define-prim ##get-allocation-object
+  (c-lambda (int)
+            scheme-object
+   #<<end-of-code
+#ifdef ___TRACK_ALLOCATIONS
+   ___return(___get_allocation_object(___arg1));
+#endif
+end-of-code
+))
+
+(define-prim ##get-allocation-file
+  (c-lambda (int)
+            char-string
+   #<<end-of-code
+#ifdef ___TRACK_ALLOCATIONS
+   ___return((char*) ___get_allocation_file(___arg1));
+#endif
+end-of-code
+))
+
+(define-prim ##get-allocation-line
+  (c-lambda (int)
+            int
+   #<<end-of-code
+#ifdef ___TRACK_ALLOCATIONS
+   ___return(___get_allocation_line(___arg1));
+#endif
+end-of-code
+))
+
+(define-prim ##get-allocation-stack
+  (c-lambda (int)
+            scheme-object
+   #<<end-of-code
+#ifdef ___TRACK_ALLOCATIONS
+   ___return(___get_allocation_stack(___arg1));
+#endif
+end-of-code
+))
+
+(define ##track #f)
+(set! ##track (lambda (obj) obj))
 
 ;;;----------------------------------------------------------------------------
 

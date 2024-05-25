@@ -247,6 +247,7 @@ ___HIDDEN void setup_processor_scmobj_pstate
 ___processor_state ___ps;)
 {
   int i;
+  ___SCMOBJ ___temp;
   ___SCMOBJ p = ___PROCESSOR_SCMOBJ(___ps);
 
   ___SUBTYPED_HEADER_SET(p, ___MAKE_HD((___PROCESSOR_SIZE<<___LWS),___sSTRUCTURE,___PERM));
@@ -271,6 +272,7 @@ ___HIDDEN void setup_vm_scmobj_vmstate
         (___vms)
 ___virtual_machine_state ___vms;)
 {
+  ___SCMOBJ ___temp;
   int i;
   ___SCMOBJ vm = ___VM_SCMOBJ(___vms);
 
@@ -1136,10 +1138,11 @@ ___HIDDEN ___SCMOBJ align_subtyped
         (ptr)
 ___SCMOBJ *ptr;)
 {
+  ___SCMOBJ ___temp;
   ___SCMOBJ head = ptr[0];
   int subtype = ___HD_SUBTYPE(head);
   int words = ___HD_WORDS(head);
-  return ___SUBTYPED_FROM_START(align (ptr,
+  return ___SUBTYPED_CONSTANT(align (ptr,
                                        words+___SUBTYPED_BODY,
                                        subtype>=___sS64VECTOR));
 }
@@ -1230,6 +1233,7 @@ ___HIDDEN void fixref
 ___module_struct *module;
 ___SCMOBJ *p;)
 {
+  ___SCMOBJ ___temp;
   ___SCMOBJ v = *p;
   int n = ___INT(v);
   switch (___TYP(v))
@@ -1240,14 +1244,14 @@ ___SCMOBJ *p;)
       else if (n < module->subcount)
         *p = ___CAST(___SCMOBJ*,module->subtbl)[n];
       else
-        *p = ___SUBTYPED_FROM_START(___CAST(___SCMOBJ*,&module->lbltbl[n-module->subcount]));
+        *p = ___SUBTYPED_CONSTANT(___CAST(___SCMOBJ*,&module->lbltbl[n-module->subcount]));
       break;
 
     case ___tMEM2:
       if (n < 0)
         *p = ___CAST(___SCMOBJ*,module->symtbl)[-1-n];
       else
-        *p = ___PAIR_FROM_START(&___CAST(___SCMOBJ*,module->cnstbl)[
+        *p = ___PAIR_CONSTANT(&___CAST(___SCMOBJ*,module->cnstbl)[
                                    n*(___PAIR_BODY+___PAIR_SIZE)]);
       break;
     }
@@ -1306,6 +1310,7 @@ ___HIDDEN ___SCMOBJ setup_module_fixup
 fem_context *ctx;
 ___module_struct *module;)
 {
+  ___SCMOBJ ___temp;
   int i, j;
   int flags;
   ___FAKEWORD *glotbl;
@@ -1421,7 +1426,7 @@ ___module_struct *module;)
   else
     {
       for (i=symcount-1; i>=0; i--)
-        symtbl[i] = ___SUBTYPED_FROM_START(___ALIGNUP(symtbl[i], ___WS));
+        symtbl[i] = ___SUBTYPED_CONSTANT(___ALIGNUP(symtbl[i], ___WS));
     }
 
   /* Setup module's keyword table */
@@ -1441,7 +1446,7 @@ ___module_struct *module;)
   else
     {
       for (i=keycount-1; i>=0; i--)
-        keytbl[i] = ___SUBTYPED_FROM_START(___ALIGNUP(keytbl[i], ___WS));
+        keytbl[i] = ___SUBTYPED_CONSTANT(___ALIGNUP(keytbl[i], ___WS));
     }
 
   /* Setup module's subtyped object table */
@@ -1590,10 +1595,10 @@ ___module_struct *module;)
                     }
                 }
               else
-                lbl->entry_or_descr = ___SUBTYPED_FROM_START(&lbl->header);
+                lbl->entry_or_descr = ___SUBTYPED_CONSTANT(&lbl->header);
             }
         }
-      *lp = ___SUBTYPED_FROM_START(lbltbl);
+      *lp = ___SUBTYPED_CONSTANT(lbltbl);
     }
 
   return ___FIX(___NO_ERR);
@@ -3657,6 +3662,9 @@ ___HIDDEN void setup_kernel_handlers ___PVOID
 
   ___start = ___PRMCELL(___G__23__23_kernel_2d_handlers.prm);
 
+#ifdef ___TRACK_ALLOCATIONS
+  ___GSTATE->tracking_allocations    = 0;
+#endif
   ___GSTATE->handler_sfun_conv_error = ___LBL(0);
   ___GSTATE->handler_cfun_conv_error = ___LBL(1);
   ___GSTATE->handler_stack_limit     = ___LBL(2);
@@ -4459,6 +4467,16 @@ ___HIDDEN void setup_dynamic_linking ___PVOID
 
   ___GSTATE->___actlog_dump
     = ___actlog_dump;
+
+#endif
+
+#ifdef ___TRACK_ALLOCATIONS
+
+  ___GSTATE->___track_allocation
+    = ___track_allocation;
+
+  ___GSTATE->___update_allocation
+    = ___update_allocation;
 
 #endif
 

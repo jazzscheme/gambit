@@ -1371,6 +1371,7 @@ ___HIDDEN ___WORD alloc_scmobj_perm
 int subtype;
 ___SIZE_TS bytes;)
 {
+  ___SCMOBJ ___temp;
   void *ptr;
   ___WORD *base;
   ___WORD *body;
@@ -1419,6 +1420,7 @@ ___processor_state ___ps;
 int subtype;
 ___SIZE_TS bytes;)
 {
+  ___SCMOBJ ___temp;
   void *ptr;
   ___WORD *base;
   ___WORD *body;
@@ -4650,6 +4652,7 @@ ___HIDDEN void process_wills
 ___PSDKR)
 {
   ___PSGET
+  ___SCMOBJ ___temp;
   ___WORD* tail_exec;
   ___WORD* tail_nonexec;
   ___WORD curr;
@@ -4673,7 +4676,7 @@ ___PSDKR)
 
   while (___UNTAG(curr) != 0)
     {
-      ___WORD will = ___SUBTYPED_FROM_START(___UNTAG(curr));
+      ___WORD will = ___SUBTYPED_CONSTANT(___UNTAG(curr));
 
       mark_array (___PSP &will, 1);
 
@@ -4689,7 +4692,7 @@ ___PSDKR)
 
   while (___UNTAG(curr) != 0)
     {
-      ___WORD will = ___SUBTYPED_FROM_START(___UNTAG(curr));
+      ___WORD will = ___SUBTYPED_CONSTANT(___UNTAG(curr));
 
       mark_array (___PSP &will, 1);
 
@@ -5441,6 +5444,17 @@ ___SCMOBJ ht_dst;)
 }
 
 
+#ifdef ___TRACK_ALLOCATIONS
+
+#define MAX_ALLOCATIONS 8192
+
+___HIDDEN ___SCMOBJ Allocations[MAX_ALLOCATIONS];
+___HIDDEN ___SCMOBJ AllocationStacks[MAX_ALLOCATIONS];
+___HIDDEN int AllocationsCount = 0;
+
+#endif
+
+
 ___HIDDEN void move_continuation
    ___P((___PSDNC),
         (___PSVNC)
@@ -5529,6 +5543,11 @@ ___SIZE_TS requested_words_still;)
   ___SIZE_TS target_movable_space;
   int target_nb_sections;
   ___SIZE_TS live;
+
+#ifdef ___TRACK_ALLOCATIONS
+  mark_array (___PSP Allocations, AllocationsCount);
+  mark_array (___PSP AllocationStacks, AllocationsCount);
+#endif
 
   determine_occupied_words (___vms);
 
@@ -5641,6 +5660,7 @@ ___HIDDEN void mark_processor_scmobj
 ___PSDKR)
 {
   ___PSGET
+  ___SCMOBJ ___temp;
 
 #ifdef ENABLE_CONSISTENCY_CHECKS
   reference_location = IN_PROCESSOR_SCMOBJ;
@@ -5658,6 +5678,7 @@ ___HIDDEN void mark_vm_scmobj
 ___PSDKR)
 {
   ___PSGET
+  ___SCMOBJ ___temp;
   ___virtual_machine_state ___vms = ___VMSTATE_FROM_PSTATE(___ps);
 
 #ifdef ENABLE_CONSISTENCY_CHECKS
@@ -6583,6 +6604,117 @@ ___PSDKR)
 
   return 0;
 }
+
+
+#ifdef ___TRACK_ALLOCATIONS
+
+___HIDDEN const char* AllocationFiles[MAX_ALLOCATIONS];
+___HIDDEN int AllocationLines[MAX_ALLOCATIONS];
+
+___HIDDEN int AllocationsAll = 0;
+
+___EXP_FUNC(___SCMOBJ,___track_allocation)
+   ___P((___SCMOBJ obj,
+         const char* file,
+         int line),
+        (obj,
+         file,
+         line)
+___SCMOBJ obj;
+const char* file;
+int line;)
+{
+    if (AllocationsCount < MAX_ALLOCATIONS)
+    {
+        Allocations[AllocationsCount] = obj;
+        AllocationFiles[AllocationsCount] = file;
+        AllocationLines[AllocationsCount] = line;
+        AllocationStacks[AllocationsCount] = ___FAL;
+        AllocationsCount++;
+    }
+    AllocationsAll++;
+    return obj;
+}
+
+___EXP_FUNC(___SCMOBJ,___update_allocation)
+   ___P((___SCMOBJ obj,
+         const char* file,
+         int line),
+        (obj,
+         file,
+         line)
+___SCMOBJ obj;
+const char* file;
+int line;)
+{
+    int n = AllocationsCount - 1;
+    if (n >= 0 && Allocations[n] == obj)
+    {
+        AllocationFiles[n] = file;
+        AllocationLines[n] = line;
+    }
+    return obj;
+}
+
+void ___update_stack(___SCMOBJ obj, ___SCMOBJ stack)
+{
+    int n = AllocationsCount - 1;
+    if (n >= 0 && Allocations[n] == obj)
+    {
+        AllocationStacks[n] = stack;
+    }
+}
+
+void ___reset_allocations()
+{
+    AllocationsCount = 0;
+    AllocationsAll = 0;
+}
+
+int ___count_allocations()
+{
+    return AllocationsCount;
+}
+
+int ___all_allocations()
+{
+    return AllocationsAll;
+}
+
+___SCMOBJ ___snapshot_allocations()
+{
+    ___SCMOBJ r = ___EXT(___alloc_scmobj)(NULL, ___sVECTOR, AllocationsCount*sizeof(___SCMOBJ));
+    ___SCMOBJ *ptr = ___CAST(___SCMOBJ*,___BODY(r));
+    int n;
+    for (n=0; n<AllocationsCount; n++)
+    {
+        *ptr++ = Allocations[n];
+    }
+    ___EXT(___release_scmobj)(r);
+    return r;
+}
+
+___SCMOBJ ___get_allocation_object(int n)
+{
+    return Allocations[n];
+}
+
+const char* ___get_allocation_file(int n)
+{
+    return AllocationFiles[n];
+}
+
+int ___get_allocation_line(int n)
+{
+    return AllocationLines[n];
+}
+
+___SCMOBJ ___get_allocation_stack(int n)
+{
+    return AllocationStacks[n];
+}
+
+#endif
 
 
 /*---------------------------------------------------------------------------*/

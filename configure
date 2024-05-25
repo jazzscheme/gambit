@@ -859,6 +859,7 @@ EGREP
 GREP
 CONF_MAX_CHR
 CONF_ACTIVITY_LOG
+CONF_TRACK_ALLOCATIONS
 ENABLE_GUIDE
 QTINCPATH
 C_PREPROC_BAT
@@ -984,6 +985,7 @@ enable_rtlib_debug_environments
 enable_track_scheme
 enable_poll
 enable_high_res_timing
+enable_track_allocations
 enable_systemd
 enable_multiple_vms
 enable_multiple_threaded_vms
@@ -1732,6 +1734,8 @@ Optional Features:
   --enable-poll           Enable poll as the select method (default is NO)
   --enable-high-res-timing
                           Enable high-resolution timing (default is NO)
+  --enable-track-allocations
+                          Enable tracking allocations (default is NO)
   --enable-systemd        Enable systemd support (default is NO)
   --enable-multiple-vms   support multiple Gambit VM instances (default is NO)
   --enable-multiple-threaded-vms
@@ -5753,6 +5757,24 @@ if test "$ENABLE_HIGH_RES_TIMING" = yes; then
 
 $as_echo "#define USE_HIGH_RES_TIMING /**/" >>confdefs.h
 
+fi
+
+###############################################################################
+#
+# Check whether to enable tracking allocations
+
+# Check whether --enable-track-allocations was given.
+if test "${enable_track_allocations+set}" = set; then :
+  enableval=$enable_track_allocations; ENABLE_TRACK_ALLOCATIONS=$enableval
+else
+  ENABLE_TRACK_ALLOCATIONS=no
+fi
+
+
+if test "$ENABLE_TRACK_ALLOCATIONS" = yes; then
+  CONF_TRACK_ALLOCATIONS="___TRACK_ALLOCATIONS"
+else
+  CONF_TRACK_ALLOCATIONS="___NO_TRACK_ALLOCATIONS"
 fi
 
 ###############################################################################

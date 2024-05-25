@@ -2180,7 +2180,7 @@ ___CAST_U64((val)<<(((i)&7)<<3))
 
 #define ___SYM(i,id)___CAST_FAKEWORD_TO_WORD(___symtbl[i])
 #define ___KEY(i,id)___CAST_FAKEWORD_TO_WORD(___keytbl[i])
-#define ___CNS(i)___PAIR_FROM_START(___ALIGNUP(___cnstbl,___WS)+i*(___PAIR_BODY+___PAIR_SIZE))
+#define ___CNS(i)___PAIR_CONSTANT(___ALIGNUP(___cnstbl,___WS)+i*(___PAIR_BODY+___PAIR_SIZE))
 #define ___SUB(i)___CAST_FAKEWORD_TO_WORD(___subtbl[i])
 
 /*
@@ -2292,6 +2292,22 @@ ___hp = ___CAST(___WORD*, (___CAST(___WORD,___hp) + (((n)<<___LWS) + 7)) & ~7)
 
 #endif
 
+/* Track allocations */
+
+#ifndef ___NO_TRACK_ALLOCATIONS
+#ifndef ___TRACK_ALLOCATIONS
+#define @CONF_TRACK_ALLOCATIONS@
+#endif
+#endif
+
+#ifdef ___TRACK_ALLOCATIONS
+#define ___TRACK_ALLOC(obj)(___temp = (obj), (___GSTATE->tracking_allocations ? ___EXT(___track_allocation)(___temp, __FILE__, __LINE__) : ___temp))
+#define ___UPDATE_ALLOC(obj)(___temp = (obj), (___GSTATE->tracking_allocations ? ___EXT(___update_allocation)(___temp, __FILE__, __LINE__) : ___temp))
+#else
+#define ___TRACK_ALLOC(obj)obj
+#define ___UPDATE_ALLOC(obj)obj
+#endif
+
 #define ___BEGIN_ALLOC_PAIR()___hp[0] = ___MAKE_HD_WORDS(___PAIR_SIZE,___sPAIR)
 #define ___ADD_PAIR_ELEM(i,val)___hp[(i)+___PAIR_BODY] = val
 #define ___END_ALLOC_PAIR()___ALLOC(___PAIR_SIZE+___PAIR_BODY)
@@ -2302,8 +2318,10 @@ ___hp = ___CAST(___WORD*, (___CAST(___WORD,___hp) + (((n)<<___LWS) + 7)) & ~7)
 #define ___END_ALLOC_SUBTYPED(n)___ALLOC((n)+___SUBTYPED_BODY)
 #define ___GET_SUBTYPED(n)___SUBTYPED_FROM_END(___hp,n)
 
+#define ___PAIR_CONSTANT(ptr) \
+___TAG(___CAST(___WORD*,ptr) - (___REFERENCE_TO_BODY+(-___PAIR_BODY)), ___tPAIR)
 #define ___PAIR_FROM(ptr,n) \
-___TAG(___CAST(___WORD*,ptr) - (___REFERENCE_TO_BODY+(n)), ___tPAIR)
+___TRACK_ALLOC(___TAG(___CAST(___WORD*,ptr) - (___REFERENCE_TO_BODY+(n)), ___tPAIR))
 #define ___PAIR_FROM_START(ptr)___PAIR_FROM(ptr,-___PAIR_BODY)
 #define ___PAIR_FROM_END(ptr)___PAIR_FROM(ptr,___PAIR_SIZE)
 #define ___PAIR_FROM_BODY(ptr)___PAIR_FROM(ptr,0)
@@ -2313,8 +2331,10 @@ ___TAG(___CAST(___WORD*,ptr) - (___REFERENCE_TO_BODY+(n)), ___tPAIR)
 #define ___PAIR_TO_END(obj)___PAIR_TO(obj,___PAIR_SIZE)
 #define ___PAIR_TO_BODY(obj)___PAIR_TO(obj,0)
 
+#define ___SUBTYPED_CONSTANT(ptr) \
+___TAG(___CAST(___WORD*,ptr) - (___REFERENCE_TO_BODY+(-___SUBTYPED_BODY)), ___tSUBTYPED)
 #define ___SUBTYPED_FROM(ptr,n) \
-___TAG(___CAST(___WORD*,ptr) - (___REFERENCE_TO_BODY+(n)), ___tSUBTYPED)
+___TRACK_ALLOC(___TAG(___CAST(___WORD*,ptr) - (___REFERENCE_TO_BODY+(n)), ___tSUBTYPED))
 #define ___SUBTYPED_FROM_START(ptr)___SUBTYPED_FROM(ptr,-___SUBTYPED_BODY)
 #define ___SUBTYPED_FROM_END(ptr,n)___SUBTYPED_FROM(ptr,n)
 #define ___SUBTYPED_FROM_BODY(ptr)___SUBTYPED_FROM(ptr,0)
@@ -3495,7 +3515,7 @@ ___GET_SUBTYPED(___KEYWORD_SIZE))
 ___ADD_SUBTYPED_ELEM(0,___ps->mem.nonexecutable_wills_), \
 ___ADD_SUBTYPED_ELEM(___WILL_TESTATOR,testator), \
 ___ADD_SUBTYPED_ELEM(___WILL_ACTION,action), \
-___ps->mem.nonexecutable_wills_=___TAG(___hp,0), \
+___ps->mem.nonexecutable_wills_=___TRACK_ALLOC(___TAG(___hp,0)), \
 ___END_ALLOC_SUBTYPED(___WILL_SIZE), \
 ___GET_SUBTYPED(___WILL_SIZE))
 
@@ -3535,14 +3555,14 @@ ___GET_SUBTYPED(___WILL_SIZE))
 #define ___CURRENTTHREADSET(thread)___FIELD(___CURRENTPROCESSOR,___PROCESSOR_CURRENT_THREAD) = thread;
 
 #define ___PROCESSOR_SCMOBJ(ps) \
-___SUBTYPED_FROM_START(___ALIGNUP((ps)->processor_scmobj,___WS))
+___SUBTYPED_CONSTANT(___ALIGNUP((ps)->processor_scmobj,___WS))
 
 #define ___CURRENTPROCESSOR ___PROCESSOR_SCMOBJ(___ps)
 #define ___CURRENTPROCESSORID ___FIX(___PROCESSOR_ID(___ps,___VMSTATE_FROM_PSTATE(___ps)))
 #define ___PROCESSOR(id) ___PROCESSOR_SCMOBJ(___PSTATE_FROM_PROCESSOR_ID(___INT(id),___VMSTATE_FROM_PSTATE(___ps)))
 
 #define ___VM_SCMOBJ(vms) \
-___SUBTYPED_FROM_START(___ALIGNUP((vms)->vm_scmobj,___WS))
+___SUBTYPED_CONSTANT(___ALIGNUP((vms)->vm_scmobj,___WS))
 
 #define ___CURRENTVM ___VM_SCMOBJ(___VMSTATE_FROM_PSTATE(___ps))
 
@@ -5479,14 +5499,14 @@ ___BEGIN_ALLOC_SUBTYPED(___MAKE_HD_BYTES(n<<2,___sU32VECTOR));
 ___ptr[-1]=___MAKE_HD_BYTES(n<<3,___sS64VECTOR);
 #define ___ADD_S64VECTOR_ELEM(i,val)___STORE_S64(___ptr,i,___S64UNBOX(val));
 #define ___END_ALLOC_S64VECTOR(n)___ALLOC(___WORDS(n<<3)+2);}
-#define ___GET_S64VECTOR(n)___TAG((((___WORD*)((___WORD)(___hp-___WORDS(n<<3))&~7))-___REFERENCE_TO_BODY),___tSUBTYPED)
+#define ___GET_S64VECTOR(n)___TRACK_ALLOC(___TAG((((___WORD*)((___WORD)(___hp-___WORDS(n<<3))&~7))-___REFERENCE_TO_BODY),___tSUBTYPED))
 
 #define ___BEGIN_ALLOC_U64VECTOR(n) \
 {___WORD *___ptr = (___WORD*)((___WORD)(___hp+2)&~7); \
 ___ptr[-1]=___MAKE_HD_BYTES(n<<3,___sU64VECTOR);
 #define ___ADD_U64VECTOR_ELEM(i,val)___STORE_U64(___ptr,i,___U64UNBOX(val));
 #define ___END_ALLOC_U64VECTOR(n)___ALLOC(___WORDS(n<<3)+2);}
-#define ___GET_U64VECTOR(n)___TAG((((___WORD*)((___WORD)(___hp-___WORDS(n<<3))&~7))-___REFERENCE_TO_BODY),___tSUBTYPED)
+#define ___GET_U64VECTOR(n)___TRACK_ALLOC(___TAG((((___WORD*)((___WORD)(___hp-___WORDS(n<<3))&~7))-___REFERENCE_TO_BODY),___tSUBTYPED))
 
 #else
 
@@ -5521,7 +5541,7 @@ ___BEGIN_ALLOC_SUBTYPED(___MAKE_HD_BYTES(n<<2,___sF32VECTOR));
 ___ptr[-1]=___MAKE_HD_BYTES(n<<3,___sF64VECTOR);
 #define ___ADD_F64VECTOR_ELEM(i,val)((___F64*)___ptr)[i]=(val);
 #define ___END_ALLOC_F64VECTOR(n)___ALLOC(___WORDS(n<<3)+2);}
-#define ___GET_F64VECTOR(n)___TAG((((___WORD*)((___WORD)(___hp-___WORDS(n<<3))&~7))-___REFERENCE_TO_BODY),___tSUBTYPED)
+#define ___GET_F64VECTOR(n)___TRACK_ALLOC(___TAG((((___WORD*)((___WORD)(___hp-___WORDS(n<<3))&~7))-___REFERENCE_TO_BODY),___tSUBTYPED))
 
 #else
 
@@ -8848,6 +8868,9 @@ typedef struct ___global_state_struct
 
     ___setup_params_struct setup_params; /* params received by ___setup */
 
+#ifdef ___TRACK_ALLOCATIONS
+    ___WORD tracking_allocations;
+#endif
     ___WORD handler_sfun_conv_error;
     ___WORD handler_cfun_conv_error;
     ___WORD handler_stack_limit;
@@ -9056,6 +9079,18 @@ typedef struct ___global_state_struct
     double (*___pow)
        ___P((double x,
              double y),
+            ());
+#endif
+#ifdef ___TRACK_ALLOCATIONS
+    ___SCMOBJ (*___track_allocation)
+       ___P((___SCMOBJ obj,
+             const char* file,
+             int line),
+            ());
+    ___SCMOBJ (*___update_allocation)
+       ___P((___SCMOBJ obj,
+             const char* file,
+             int line),
             ());
 #endif
     ___SCMOBJ (*___F64_to_STRING)
@@ -11340,6 +11375,18 @@ ___IMP_FUNC(double,___pow)
    ___P((double x,
          double y),
         ());
+#endif
+#ifdef ___TRACK_ALLOCATIONS
+___IMP_FUNC(___SCMOBJ,___track_allocation)
+       ___P((___SCMOBJ,
+             const char*,
+             int),
+            ());
+___IMP_FUNC(___SCMOBJ,___update_allocation)
+       ___P((___SCMOBJ,
+             const char*,
+             int),
+            ());
 #endif
 ___IMP_FUNC(___SCMOBJ,___F64_to_STRING)
    ___P((___PSD
