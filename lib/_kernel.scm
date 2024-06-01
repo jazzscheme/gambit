@@ -1247,6 +1247,44 @@ end-of-code
 end-of-code
 
    (let () (##declare (not warnings)) (0))) ; create a return point
+
+  (##c-code #<<end-of-code
+
+   /*
+    * ___LBL(14)
+    *
+    * This is the record-tracked handler.  It is invoked by the ___CHECK_HEAP(n,m)
+    * macro when tracking allocations.
+    *
+    * This handler simply calls ##record-tracked.
+    */
+
+   int fs;
+   ___SCMOBJ ra;
+
+   /* setup internal return continuation frame */
+
+   ra = ___ps->temp1;
+
+   ___RETI_GET_CFS(ra,fs)
+
+   ___ADJFP(___ROUND_TO_MULT(fs,___FRAME_ALIGN)-fs)
+
+   ___PUSH_REGS /* push all GVM registers (live or not) */
+   ___PUSH(ra)  /* push return address */
+
+   ___ADJFP(-___RETI_RA)
+
+   ___SET_R0(___GSTATE->internal_return)
+
+   /* tail call to ##record-tracked */
+
+   ___JUMPPRM(___SET_NARGS(0),
+              ___PRMCELL(___G__23__23_record_2d_tracked.prm))
+
+end-of-code
+
+   (let () (##declare (not warnings)) (0))) ; create a return point
 )
 
 ;;;----------------------------------------------------------------------------
@@ -4236,6 +4274,7 @@ end-of-code
 
 (define-prim (##untrack-allocations)
   (##declare (not interrupts-enabled))
+  (##record-tracked)
   (##c-code #<<end-of-code
 
 #ifdef ___TRACK_ALLOCATIONS
@@ -4247,111 +4286,104 @@ end-of-code
 
   ))
 
-(define-prim (##update-stack obj stack)
+(define-prim (##record-tracked)
+  (##declare (not interrupts-enabled))
+  (if (##tracking-allocations?)
+      (begin
+        (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+            ___GSTATE->tracking_allocations = 0;
+#endif
+            ___RESULT = ___VOID;
+
+end-of-code
+)
+        (##register-tracked)
+        (##reset-tracked)
+        (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+            ___GSTATE->tracking_allocations = 1;
+#endif
+            ___RESULT = ___VOID;
+
+end-of-code
+))))
+
+(define ##register-tracked
+  (lambda ()
+    #f))
+
+(define-prim (##register-tracked-set! proc)
+  (set! ##register-tracked proc))
+
+(define-prim (##reset-tracked)
   (##declare (not interrupts-enabled))
   (##c-code #<<end-of-code
 
 #ifdef ___TRACK_ALLOCATIONS
-   ___update_stack(___ARG1, ___ARG2);
+   ___reset_tracked();
    ___RESULT = ___VOID;
 #endif
    
 end-of-code
 
-  obj
-  stack))
+  ))
 
-(define-prim (##reset-allocations)
+(define-prim (##count-tracked)
   (##declare (not interrupts-enabled))
   (##c-code #<<end-of-code
 
 #ifdef ___TRACK_ALLOCATIONS
-   ___reset_allocations();
-   ___RESULT = ___VOID;
+   ___RESULT = ___FIX(___count_tracked());
 #endif
    
 end-of-code
 
   ))
 
-(define-prim (##count-allocations)
+(define-prim (##all-tracked)
   (##declare (not interrupts-enabled))
   (##c-code #<<end-of-code
 
 #ifdef ___TRACK_ALLOCATIONS
-   ___RESULT = ___FIX(___count_allocations());
+   ___RESULT = ___FIX(___all_tracked());
 #endif
    
 end-of-code
 
   ))
 
-(define-prim (##all-allocations)
-  (##declare (not interrupts-enabled))
-  (##c-code #<<end-of-code
-
-#ifdef ___TRACK_ALLOCATIONS
-   ___RESULT = ___FIX(___all_allocations());
-#endif
-   
-end-of-code
-
-  ))
-
-(define-prim (##snapshot-allocations)
-  (##declare (not interrupts-enabled))
-  (##c-code #<<end-of-code
-
-#ifdef ___TRACK_ALLOCATIONS
-   ___RESULT = ___snapshot_allocations();
-#endif
-   
-end-of-code
-
-  ))
-
-(define-prim ##get-allocation-object
+(define-prim ##get-tracked-object
   (c-lambda (int)
             scheme-object
    #<<end-of-code
 #ifdef ___TRACK_ALLOCATIONS
-   ___return(___get_allocation_object(___arg1));
+   ___return(___get_tracked_object(___arg1));
 #endif
 end-of-code
 ))
 
-(define-prim ##get-allocation-file
+(define-prim ##get-tracked-file
   (c-lambda (int)
             char-string
    #<<end-of-code
 #ifdef ___TRACK_ALLOCATIONS
-   ___return((char*) ___get_allocation_file(___arg1));
+   ___return((char*) ___get_tracked_file(___arg1));
 #endif
 end-of-code
 ))
 
-(define-prim ##get-allocation-line
+(define-prim ##get-tracked-line
   (c-lambda (int)
             int
    #<<end-of-code
 #ifdef ___TRACK_ALLOCATIONS
-   ___return(___get_allocation_line(___arg1));
+   ___return(___get_tracked_line(___arg1));
 #endif
 end-of-code
 ))
-
-(define-prim ##get-allocation-stack
-  (c-lambda (int)
-            scheme-object
-   #<<end-of-code
-#ifdef ___TRACK_ALLOCATIONS
-   ___return(___get_allocation_stack(___arg1));
-#endif
-end-of-code
-))
-
-(define ##track #f)
-(set! ##track (lambda (obj) obj))
 
 ;;;----------------------------------------------------------------------------
 

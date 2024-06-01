@@ -3662,9 +3662,6 @@ ___HIDDEN void setup_kernel_handlers ___PVOID
 
   ___start = ___PRMCELL(___G__23__23_kernel_2d_handlers.prm);
 
-#ifdef ___TRACK_ALLOCATIONS
-  ___GSTATE->tracking_allocations    = 0;
-#endif
   ___GSTATE->handler_sfun_conv_error = ___LBL(0);
   ___GSTATE->handler_cfun_conv_error = ___LBL(1);
   ___GSTATE->handler_stack_limit     = ___LBL(2);
@@ -3679,6 +3676,11 @@ ___HIDDEN void setup_kernel_handlers ___PVOID
   ___GSTATE->handler_return_to_c     = ___LBL(11);
   ___GSTATE->handler_break           = ___LBL(12);
   ___GSTATE->internal_return         = ___LBL(13);
+  ___GSTATE->record_tracked          = ___LBL(14);
+
+#ifdef ___TRACK_ALLOCATIONS
+  ___GSTATE->tracking_allocations    = 0;
+#endif
 
   /*
    * The label numbers must match those in the procedure
@@ -4475,8 +4477,8 @@ ___HIDDEN void setup_dynamic_linking ___PVOID
   ___GSTATE->___track_allocation
     = ___track_allocation;
 
-  ___GSTATE->___update_allocation
-    = ___update_allocation;
+  ___GSTATE->___update_tracked
+    = ___update_tracked;
 
 #endif
 

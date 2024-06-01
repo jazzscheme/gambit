@@ -2302,10 +2302,16 @@ ___hp = ___CAST(___WORD*, (___CAST(___WORD,___hp) + (((n)<<___LWS) + 7)) & ~7)
 
 #ifdef ___TRACK_ALLOCATIONS
 #define ___TRACK_ALLOC(obj)(___temp = (obj), (___GSTATE->tracking_allocations ? ___EXT(___track_allocation)(___temp, __FILE__, __LINE__) : ___temp))
-#define ___UPDATE_ALLOC(obj)(___temp = (obj), (___GSTATE->tracking_allocations ? ___EXT(___update_allocation)(___temp, __FILE__, __LINE__) : ___temp))
+#define ___UPDATE_TRACKED(obj)(___temp = (obj), (___GSTATE->tracking_allocations ? ___EXT(___update_tracked)(___temp, __FILE__, __LINE__) : ___temp))
+#define ___RECORD_TRACKED(n) \
+if (___GSTATE->tracking_allocations) \
+{___ps->temp1=___LBL(n); \
+___JUMPEXTPRM(___NOTHING,___GSTATE->record_tracked) \
+}
 #else
 #define ___TRACK_ALLOC(obj)obj
-#define ___UPDATE_ALLOC(obj)obj
+#define ___UPDATE_TRACKED(obj)obj
+#define ___RECORD_TRACKED(n)
 #endif
 
 #define ___BEGIN_ALLOC_PAIR()___hp[0] = ___MAKE_HD_WORDS(___PAIR_SIZE,___sPAIR)
@@ -5629,7 +5635,8 @@ if (___EXPECT_FALSE(___hp>___ps->heap_limit)) \
 ___ps->check_heap_location.file=__FILE__; \
 ___ps->check_heap_location.line=__LINE__; \
 ___JUMPEXTPRM(___NOTHING,___GSTATE->handler_heap_limit) \
-}
+} \
+___RECORD_TRACKED(n)
 
 #else
 
@@ -5637,7 +5644,8 @@ ___JUMPEXTPRM(___NOTHING,___GSTATE->handler_heap_limit) \
 if (___EXPECT_FALSE(___hp>___ps->heap_limit)) \
 {___ps->temp1=___LBL(n); \
 ___JUMPEXTPRM(___NOTHING,___GSTATE->handler_heap_limit) \
-}
+} \
+___RECORD_TRACKED(n)
 
 #endif
 
@@ -8885,6 +8893,7 @@ typedef struct ___global_state_struct
     ___WORD handler_return_to_c;
     ___WORD handler_break;
     ___WORD internal_return;
+    ___WORD record_tracked;
     ___WORD dynamic_env_bind_return;
 
     ___SCMOBJ symbol_table;   /* Hash table of all interned symbols.  */
@@ -9087,7 +9096,7 @@ typedef struct ___global_state_struct
              const char* file,
              int line),
             ());
-    ___SCMOBJ (*___update_allocation)
+    ___SCMOBJ (*___update_tracked)
        ___P((___SCMOBJ obj,
              const char* file,
              int line),

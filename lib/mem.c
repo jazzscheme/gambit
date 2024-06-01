@@ -5446,11 +5446,10 @@ ___SCMOBJ ht_dst;)
 
 #ifdef ___TRACK_ALLOCATIONS
 
-#define MAX_ALLOCATIONS 8192
+#define MAX_TRACKED 1024
 
-___HIDDEN ___SCMOBJ Allocations[MAX_ALLOCATIONS];
-___HIDDEN ___SCMOBJ AllocationStacks[MAX_ALLOCATIONS];
-___HIDDEN int AllocationsCount = 0;
+___HIDDEN ___SCMOBJ Tracked[MAX_TRACKED];
+___HIDDEN int TrackedCount = 0;
 
 #endif
 
@@ -5545,8 +5544,7 @@ ___SIZE_TS requested_words_still;)
   ___SIZE_TS live;
 
 #ifdef ___TRACK_ALLOCATIONS
-  mark_array (___PSP Allocations, AllocationsCount);
-  mark_array (___PSP AllocationStacks, AllocationsCount);
+  mark_array (___PSP Tracked, TrackedCount);
 #endif
 
   determine_occupied_words (___vms);
@@ -6608,10 +6606,10 @@ ___PSDKR)
 
 #ifdef ___TRACK_ALLOCATIONS
 
-___HIDDEN const char* AllocationFiles[MAX_ALLOCATIONS];
-___HIDDEN int AllocationLines[MAX_ALLOCATIONS];
+___HIDDEN const char* TrackedFiles[MAX_TRACKED];
+___HIDDEN int TrackedLines[MAX_TRACKED];
 
-___HIDDEN int AllocationsAll = 0;
+___HIDDEN int TrackedAll = 0;
 
 ___EXP_FUNC(___SCMOBJ,___track_allocation)
    ___P((___SCMOBJ obj,
@@ -6624,19 +6622,18 @@ ___SCMOBJ obj;
 const char* file;
 int line;)
 {
-    if (AllocationsCount < MAX_ALLOCATIONS)
+    if (TrackedCount < MAX_TRACKED)
     {
-        Allocations[AllocationsCount] = obj;
-        AllocationFiles[AllocationsCount] = file;
-        AllocationLines[AllocationsCount] = line;
-        AllocationStacks[AllocationsCount] = ___FAL;
-        AllocationsCount++;
+        Tracked[TrackedCount] = obj;
+        TrackedFiles[TrackedCount] = file;
+        TrackedLines[TrackedCount] = line;
+        TrackedCount++;
     }
-    AllocationsAll++;
+    TrackedAll++;
     return obj;
 }
 
-___EXP_FUNC(___SCMOBJ,___update_allocation)
+___EXP_FUNC(___SCMOBJ,___update_tracked)
    ___P((___SCMOBJ obj,
          const char* file,
          int line),
@@ -6647,71 +6644,44 @@ ___SCMOBJ obj;
 const char* file;
 int line;)
 {
-    int n = AllocationsCount - 1;
-    if (n >= 0 && Allocations[n] == obj)
+    int n = TrackedCount - 1;
+    if (n >= 0 && Tracked[n] == obj)
     {
-        AllocationFiles[n] = file;
-        AllocationLines[n] = line;
+        TrackedFiles[n] = file;
+        TrackedLines[n] = line;
     }
     return obj;
 }
 
-void ___update_stack(___SCMOBJ obj, ___SCMOBJ stack)
+void ___reset_tracked()
 {
-    int n = AllocationsCount - 1;
-    if (n >= 0 && Allocations[n] == obj)
-    {
-        AllocationStacks[n] = stack;
-    }
+    TrackedCount = 0;
+    TrackedAll = 0;
 }
 
-void ___reset_allocations()
+int ___count_tracked()
 {
-    AllocationsCount = 0;
-    AllocationsAll = 0;
+    return TrackedCount;
 }
 
-int ___count_allocations()
+int ___all_tracked()
 {
-    return AllocationsCount;
+    return TrackedAll;
 }
 
-int ___all_allocations()
+___SCMOBJ ___get_tracked_object(int n)
 {
-    return AllocationsAll;
+    return Tracked[n];
 }
 
-___SCMOBJ ___snapshot_allocations()
+const char* ___get_tracked_file(int n)
 {
-    ___SCMOBJ r = ___EXT(___alloc_scmobj)(NULL, ___sVECTOR, AllocationsCount*sizeof(___SCMOBJ));
-    ___SCMOBJ *ptr = ___CAST(___SCMOBJ*,___BODY(r));
-    int n;
-    for (n=0; n<AllocationsCount; n++)
-    {
-        *ptr++ = Allocations[n];
-    }
-    ___EXT(___release_scmobj)(r);
-    return r;
+    return TrackedFiles[n];
 }
 
-___SCMOBJ ___get_allocation_object(int n)
+int ___get_tracked_line(int n)
 {
-    return Allocations[n];
-}
-
-const char* ___get_allocation_file(int n)
-{
-    return AllocationFiles[n];
-}
-
-int ___get_allocation_line(int n)
-{
-    return AllocationLines[n];
-}
-
-___SCMOBJ ___get_allocation_stack(int n)
-{
-    return AllocationStacks[n];
+    return TrackedLines[n];
 }
 
 #endif

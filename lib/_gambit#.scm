@@ -892,13 +892,6 @@
 (##define-macro (define-exception-type . args)
   `(define-library-type ,@args))
 
-(##define-macro (%%tracking expr)
-  `(##c-code #<<end-of-code
-___RESULT = ___UPDATE_ALLOC(___ARG1);
-end-of-code
-
-(##track ,expr)))
-
 ;;;----------------------------------------------------------------------------
 
 (##include "_kernel#.scm")

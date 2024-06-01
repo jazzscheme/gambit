@@ -247,43 +247,31 @@ extern ___SCMOBJ ___track_allocation
    ___P((___SCMOBJ obj, const char* file, int line),
         ());
 
-extern ___SCMOBJ ___update_allocation
+extern ___SCMOBJ ___update_tracked
    ___P((___SCMOBJ obj, const char* file, int line),
         ());
 
-extern void ___update_stack
-   ___P((___SCMOBJ obj, ___SCMOBJ stack),
-        ());
-
-extern void ___reset_allocations
+extern void ___reset_tracked
    ___P((),
         ());
 
-extern int ___count_allocations
+extern int ___count_tracked
    ___P((),
         ());
 
-extern int ___all_allocations
+extern int ___all_tracked
    ___P((),
         ());
 
-extern ___SCMOBJ ___snapshot_allocations
-   ___P((),
-        ());
-
-extern ___SCMOBJ ___get_allocation_object
+extern ___SCMOBJ ___get_tracked_object
    ___P((int),
         ());
 
-extern const char* ___get_allocation_file
+extern const char* ___get_tracked_file
    ___P((int),
         ());
 
-extern int ___get_allocation_line
-   ___P((int),
-        ());
-
-extern ___SCMOBJ ___get_allocation_stack
+extern int ___get_tracked_line
    ___P((int),
         ());
 
