@@ -3521,7 +3521,7 @@ ___GET_SUBTYPED(___KEYWORD_SIZE))
 ___ADD_SUBTYPED_ELEM(0,___ps->mem.nonexecutable_wills_), \
 ___ADD_SUBTYPED_ELEM(___WILL_TESTATOR,testator), \
 ___ADD_SUBTYPED_ELEM(___WILL_ACTION,action), \
-___ps->mem.nonexecutable_wills_=___TRACK_ALLOC(___TAG(___hp,0)), \
+___ps->mem.nonexecutable_wills_=___TAG(___hp,0), \
 ___END_ALLOC_SUBTYPED(___WILL_SIZE), \
 ___GET_SUBTYPED(___WILL_SIZE))
 
