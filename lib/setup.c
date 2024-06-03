@@ -3680,6 +3680,7 @@ ___HIDDEN void setup_kernel_handlers ___PVOID
 
 #ifdef ___TRACK_ALLOCATIONS
   ___GSTATE->tracking_allocations    = 0;
+  ___GSTATE->tracked_count           = 0;
 #endif
 
   /*

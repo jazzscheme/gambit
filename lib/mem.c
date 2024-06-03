@@ -5444,16 +5444,6 @@ ___SCMOBJ ht_dst;)
 }
 
 
-#ifdef ___TRACK_ALLOCATIONS
-
-#define MAX_TRACKED 1024
-
-___HIDDEN ___SCMOBJ Tracked[MAX_TRACKED];
-___HIDDEN int TrackedCount = 0;
-
-#endif
-
-
 ___HIDDEN void move_continuation
    ___P((___PSDNC),
         (___PSVNC)
@@ -5544,7 +5534,7 @@ ___SIZE_TS requested_words_still;)
   ___SIZE_TS live;
 
 #ifdef ___TRACK_ALLOCATIONS
-  mark_array (___PSP Tracked, TrackedCount);
+  mark_array (___PSP ___GSTATE->tracked, ___GSTATE->tracked_count);
 #endif
 
   determine_occupied_words (___vms);
@@ -6622,12 +6612,12 @@ ___SCMOBJ obj;
 const char* file;
 int line;)
 {
-    if (TrackedCount < MAX_TRACKED)
+    if (___GSTATE->tracked_count < MAX_TRACKED)
     {
-        Tracked[TrackedCount] = obj;
-        TrackedFiles[TrackedCount] = file;
-        TrackedLines[TrackedCount] = line;
-        TrackedCount++;
+        ___GSTATE->tracked[___GSTATE->tracked_count] = obj;
+        TrackedFiles[___GSTATE->tracked_count] = file;
+        TrackedLines[___GSTATE->tracked_count] = line;
+        ___GSTATE->tracked_count++;
     }
     TrackedAll++;
     return obj;
@@ -6644,8 +6634,8 @@ ___SCMOBJ obj;
 const char* file;
 int line;)
 {
-    int n = TrackedCount - 1;
-    if (n >= 0 && Tracked[n] == obj)
+    int n = ___GSTATE->tracked_count - 1;
+    if (n >= 0 && ___GSTATE->tracked[n] == obj)
     {
         TrackedFiles[n] = file;
         TrackedLines[n] = line;
@@ -6655,13 +6645,13 @@ int line;)
 
 void ___reset_tracked()
 {
-    TrackedCount = 0;
+    ___GSTATE->tracked_count = 0;
     TrackedAll = 0;
 }
 
 int ___count_tracked()
 {
-    return TrackedCount;
+    return ___GSTATE->tracked_count;
 }
 
 int ___all_tracked()
@@ -6671,7 +6661,7 @@ int ___all_tracked()
 
 ___SCMOBJ ___get_tracked_object(int n)
 {
-    return Tracked[n];
+    return ___GSTATE->tracked[n];
 }
 
 const char* ___get_tracked_file(int n)

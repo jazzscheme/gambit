@@ -274,7 +274,16 @@
 ;;
 ;; Dumping of a compilation module
 
+;; super kludge
+(define linking-library?
+  #f)
+
+;; super kludge
+(define (update-linking-library linker-name)
+  (set! linking-library? (##not (##eqv? (##string-ref linker-name 0) #\_))))
+
 (define (targ-dump procs output c-intf module-descr linker-name)
+  (update-linking-library linker-name)
   (let ((c-decls (c-intf-decls c-intf))
         (c-procs (c-intf-procs c-intf))
         (c-inits (c-intf-inits c-intf))
