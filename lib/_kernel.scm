@@ -4299,7 +4299,7 @@ end-of-code
 
 end-of-code
 )
-        (##register-tracked)
+        (##record-tracked-hook)
         (##reset-tracked)
         (##c-code #<<end-of-code
 
@@ -4311,12 +4311,12 @@ end-of-code
 end-of-code
 ))))
 
-(define ##register-tracked
+(define ##record-tracked-hook
   (lambda ()
     #f))
 
-(define-prim (##register-tracked-set! proc)
-  (set! ##register-tracked proc))
+(define-prim (##record-tracked-hook-set! proc)
+  (set! ##record-tracked-hook proc))
 
 (define-prim (##reset-tracked)
   (##declare (not interrupts-enabled))
