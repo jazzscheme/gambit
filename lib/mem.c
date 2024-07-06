@@ -1264,11 +1264,7 @@ ___SCMOBJ sym;)
       if (glo == 0)
         return ___FIX(___HEAP_OVERFLOW_ERR);
 
-#ifdef ___SINGLE_VM
       glo->val = ___UNB1;
-#else
-      glo->val = ___GSTATE->mem.glo_list.count;
-#endif
 
       ___glo_list_add (glo);
 
@@ -4332,35 +4328,6 @@ ___virtual_machine_state ___vms;)
 
 #endif
 
-#ifndef ___SINGLE_VM
-
-  /*
-   * Add to tail of virtual machine circular list.
-   */
-
-  ___MUTEX_LOCK(___GSTATE->vm_list_mut);
-
-  {
-    ___virtual_machine_state head = &___GSTATE->vmstate0;
-    ___virtual_machine_state tail = head->prev;
-
-    ___vms->prev = tail;
-    ___vms->next = head;
-    head->prev = ___vms;
-    tail->next = ___vms;
-  }
-
-  ___MUTEX_UNLOCK(___GSTATE->vm_list_mut);
-
-  /* TODO: implement expansion of glos array when number of globals grows beyond 20000 */
-
-  { int n = 20000;
-    ___vms->glos = ___CAST(___SCMOBJ*,___ALLOC_MEM(n * sizeof (___SCMOBJ)));
-    while (--n>=0) { ___vms->glos[n] = ___UNB1; }
-  }
-
-#endif
-
   /*
    * It is important to initialize the_msections first so
    * that if the program terminates early the procedure
@@ -4524,24 +4491,6 @@ ___virtual_machine_state ___vms;)
   ___cleanup_mem_pstate (&___vms->pstate[0]);/*TODO: other processors?*/
 
   free_msections (&the_msections);
-
-#ifndef ___SINGLE_VM
-
-  /*
-   * Remove from virtual machine circular list.
-   */
-
-  /* It is assumed that ___GSTATE->vm_list_mut is currently locked */
-
-  {
-    ___virtual_machine_state prev = ___vms->prev;
-    ___virtual_machine_state next = ___vms->next;
-
-    next->prev = prev;
-    prev->next = next;
-  }
-
-#endif
 
 #undef ___VMSTATE_MEM
 #define ___VMSTATE_MEM(var) ___VMSTATE_FROM_PSTATE(___ps)->mem.var
@@ -5639,8 +5588,6 @@ ___PSDKR)
    * Mark a portion of the global variables.
    */
 
-#ifdef ___SINGLE_VM
-
   {
     int np = ___vms->processor_count;
     int lo = (id * ___GLO_SUBLIST_COUNT) / np;
@@ -5664,21 +5611,6 @@ ___PSDKR)
         lo++;
       }
   }
-
-#else
-
-  {
-    int n = ___GSTATE->mem.glo_list.count;
-    int np = ___vms->processor_count;
-    int lo = (id * n) / np;
-    int hi = ((id+1) * n) / np;
-
-    mark_array (___PSP
-                ___VMSTATE_FROM_PSTATE(___ps)->glos+lo,
-                hi-lo);
-  }
-
-#endif
 }
 
 

@@ -4087,13 +4087,8 @@ ___SET_R0(___GSTATE->handler_break)
 #define ___PSSTK(fpo)___FP_STK(___PSFP,fpo)
 #define ___PSADJFP(fpa)___FP_ADJFP(___PSFP,fpa)
 
-#ifdef ___SINGLE_VM
 #define ___GLOCELL_IN_VM(vm,x)x
 #define ___GLOCELL(x)x
-#else
-#define ___GLOCELL_IN_VM(vm,x)vm->glos[x]
-#define ___GLOCELL(x)___GLOCELL_IN_VM(___VMSTATE_FROM_PSTATE(___ps),x)
-#endif
 
 #define ___PRMCELL(x)x
 
@@ -5833,11 +5828,7 @@ extern ___THREAD_LOCAL_STORAGE_CLASS void *___tls_ptr;
 
 #define ___PSTATE ___GET_PSTATE()
 
-#ifdef ___SINGLE_VM
 #define ___VMSTATE (&___GSTATE->vmstate0)
-#else
-#define ___VMSTATE ___VMSTATE_FROM_PSTATE(___PSTATE)
-#endif
 
 #ifdef ___BIND_LATE
 
@@ -8751,15 +8742,6 @@ typedef struct ___virtual_machine_state_struct
 
     ___SCMOBJ main_module_id; /* symbol identifying the VM's main module */
 
-#ifndef ___SINGLE_VM
-
-    ___VOLATILE ___virtual_machine_state prev; /* circular list links */
-    ___VOLATILE ___virtual_machine_state next;
-
-    ___SCMOBJ *glos; /* Scheme global variables */
-
-#endif
-
   } ___virtual_machine_state_struct;
 
 #define ___PROCESSOR_ID(ps,vms) ((ps) - (vms)->pstate)
@@ -8863,10 +8845,6 @@ typedef struct ___setup_params_struct
 typedef struct ___global_state_struct
   {
     ___virtual_machine_state_struct vmstate0; /* first VM */
-
-#ifndef ___SINGLE_VM
-    ___MUTEX_DECL(vm_list_mut) /* mutex for accessing VM list */
-#endif
 
     int setup_state; /* 0=pre-setup, 1=post-setup, 2=post-cleanup */
 

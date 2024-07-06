@@ -114,29 +114,7 @@ int code;)
 {
   ___virtual_machine_state ___vms = &___GSTATE->vmstate0;
 
-#ifdef ___SINGLE_VM
-
   ___raise_interrupt_vmstate (___vms, code);
-
-#else
-
-#if 0
-  /* TODO: investigate why this deadlocks the process... probably recursive locking of mutex */
-  ___MUTEX_LOCK(___GSTATE->vm_list_mut);
-#endif
-
-  do
-    {
-      ___vms = ___vms->prev;
-      ___raise_interrupt_vmstate (___vms, code);
-    }
-  while (___vms != &___GSTATE->vmstate0);
-
-#if 0
-  ___MUTEX_UNLOCK(___GSTATE->vm_list_mut);
-#endif
-
-#endif
 }
 
 
@@ -2815,12 +2793,6 @@ ___mod_or_lnk mol;)
           str = align_subtyped (___CAST(___SCMOBJ*,sym_ptr[___SUBTYPED_BODY+___SYMKEY_NAME]));
           glo = ___CAST(___glo_struct*,sym_ptr[___SUBTYPED_BODY+___SYMBOL_GLOBAL]);
 
-#ifndef ___SINGLE_VM
-
-          glo->val = ___GSTATE->mem.glo_list.count;
-
-#endif
-
           ___glo_list_add (glo);
 
           sym_ptr[0] = ___MAKE_HD((___SYMBOL_SIZE<<___LWS),___sSYMBOL,___PERM);
@@ -3450,28 +3422,7 @@ ___EXP_FUNC(void,___cleanup) ___PVOID
 
   ___cleanup_pstate (___ps);
 
-#ifdef ___SINGLE_VM
-
   ___cleanup_vmstate (&___GSTATE->vmstate0);
-
-#else
-
-  ___MUTEX_LOCK(___GSTATE->vm_list_mut);
-
-  {
-    ___virtual_machine_state ___vms = &___GSTATE->vmstate0;
-
-    do
-      {
-        ___vms = ___vms->prev;
-        ___cleanup_vmstate (___vms);
-      }
-    while (___vms != &___GSTATE->vmstate0);
-  }
-
-  ___MUTEX_DESTROY(___GSTATE->vm_list_mut);
-
-#endif
 
   cleanup_os_and_mem ();
 }
@@ -4604,15 +4555,6 @@ ___setup_params_struct *setup_params;)
    /*
     * Setup virtual machine circular list.
     */
-
-#ifndef ___SINGLE_VM
-
-  ___MUTEX_INIT(___GSTATE->vm_list_mut);
-
-  ___vms->prev = ___vms;
-  ___vms->next = ___vms;
-
-#endif
 
   /*
    * Setup support for dynamic linking.
