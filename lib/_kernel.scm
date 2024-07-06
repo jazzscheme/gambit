@@ -1088,58 +1088,51 @@ end-of-code
 
        fp = ___CAST(___SCMOBJ*,cf);
 
-       ___W_FP
-       ra1 = ___stack_overflow_undo_if_possible (___PSPNC);
-       ___R_FP
+       /*
+        * The caller's frame must be copied to the top of stack.
+        */
 
-       if (ra1 == ___FAL)
+       ra1 = ___FP_STK(fp,-___FRAME_STACK_RA);
+
+       if (ra1 == ___GSTATE->internal_return)
          {
-           /*
-            * The caller's frame must be copied to the top of stack.
-            */
-
-           ra1 = ___FP_STK(fp,-___FRAME_STACK_RA);
-
-           if (ra1 == ___GSTATE->internal_return)
-             {
-               ___SCMOBJ actual_ra = ___FP_STK(fp,___RETI_RA);
-               ___RETI_GET_FS_LINK(actual_ra,fs,link)
-               ___COVER_BREAK_HANDLER_STACK_RETI;
-             }
-           else
-             {
-               ___RETN_GET_FS_LINK(ra1,fs,link)
-               ___COVER_BREAK_HANDLER_STACK_RETN;
-             }
-
-           ___FP_ADJFP(fp,-___FRAME_SPACE(fs)); /* get base of frame */
-
-           for (i=fs; i>0; i--)
-             ___SET_STK(i,___FP_STK(fp,i))
-
-           ra2 = ___STK(link+1);
-
-           if (ra2 == ___GSTATE->handler_break)
-             {
-               /* first frame of that section */
-
-               ___COVER_BREAK_HANDLER_STACK_FIRST_FRAME;
-               ___SET_STK(-___BREAK_FRAME_NEXT,
-                          ___FP_STK(fp,-___BREAK_FRAME_NEXT))
-             }
-           else
-             {
-               /* not the first frame of that section */
-
-               ___COVER_BREAK_HANDLER_STACK_NOT_FIRST_FRAME;
-
-               ___FP_SET_STK(fp,-___FRAME_STACK_RA,ra2)
-               ___SET_STK(-___BREAK_FRAME_NEXT,___CAST(___SCMOBJ,fp))
-               ___SET_STK(link+1,___GSTATE->handler_break)
-             }
-
-           ___ADJFP(___FRAME_SPACE(fs))
+           ___SCMOBJ actual_ra = ___FP_STK(fp,___RETI_RA);
+           ___RETI_GET_FS_LINK(actual_ra,fs,link)
+           ___COVER_BREAK_HANDLER_STACK_RETI;
          }
+       else
+         {
+           ___RETN_GET_FS_LINK(ra1,fs,link)
+           ___COVER_BREAK_HANDLER_STACK_RETN;
+         }
+
+       ___FP_ADJFP(fp,-___FRAME_SPACE(fs)); /* get base of frame */
+
+       for (i=fs; i>0; i--)
+         ___SET_STK(i,___FP_STK(fp,i))
+
+       ra2 = ___STK(link+1);
+
+       if (ra2 == ___GSTATE->handler_break)
+         {
+           /* first frame of that section */
+
+           ___COVER_BREAK_HANDLER_STACK_FIRST_FRAME;
+           ___SET_STK(-___BREAK_FRAME_NEXT,
+                      ___FP_STK(fp,-___BREAK_FRAME_NEXT))
+         }
+       else
+         {
+           /* not the first frame of that section */
+
+           ___COVER_BREAK_HANDLER_STACK_NOT_FIRST_FRAME;
+
+           ___FP_SET_STK(fp,-___FRAME_STACK_RA,ra2)
+           ___SET_STK(-___BREAK_FRAME_NEXT,___CAST(___SCMOBJ,fp))
+           ___SET_STK(link+1,___GSTATE->handler_break)
+         }
+
+       ___ADJFP(___FRAME_SPACE(fs))
      }
    else
      {

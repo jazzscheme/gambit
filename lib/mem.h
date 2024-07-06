@@ -130,11 +130,6 @@ extern ___BOOL ___stack_limit
 #endif
 
 
-extern ___WORD ___stack_overflow_undo_if_possible
-   ___P((___PSDNC),
-        ());
-
-
 #ifdef ___DEBUG_HEAP_LIMIT
 
 #define ___heap_limit(ps) ___heap_limit_debug (ps,__LINE__,__FILE__)
