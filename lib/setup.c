@@ -240,8 +240,6 @@ ___processor_state ___ps;)
 
   ___VECTORSET(p,___FIX(___OBJ_LOCK1),___FIX(0))
   ___VECTORSET(p,___FIX(___OBJ_LOCK2),___FIX(0))
-
-  ___PRIMITIVELOCK(p,___FIX(___OBJ_LOCK1),___FIX(___OBJ_LOCK2))
 }
 
 
@@ -266,8 +264,6 @@ ___virtual_machine_state ___vms;)
 
   ___VECTORSET(vm,___FIX(___OBJ_LOCK1),___FIX(0))
   ___VECTORSET(vm,___FIX(___OBJ_LOCK2),___FIX(0))
-
-  ___PRIMITIVELOCK(vm,___FIX(___OBJ_LOCK1),___FIX(___OBJ_LOCK2))
 }
 
 
@@ -332,13 +328,6 @@ ___HIDDEN void ___sync_wait
         (___ps)
 ___processor_state ___ps;)
 {
-#ifndef ___SINGLE_THREADED_VMS
-
-  ___ACTLOG_BEGIN_PS(sync_wait,gray);
-  ___CONDVAR_WAIT(___ps->sync_cv, ___ps->sync_mut);
-  ___ACTLOG_END_PS();
-
-#endif
 }
 
 
@@ -350,168 +339,7 @@ ___HIDDEN int barrier_sync_op
 ___PSDKR
 ___sync_op_struct *sop_ptr;)
 {
-#ifdef ___SINGLE_THREADED_VMS
-
   return 0;
-
-#else
-
-  ___PSGET
-  ___virtual_machine_state ___vms = ___VMSTATE_FROM_PSTATE(___ps);
-  int id = ___PROCESSOR_ID(___ps, ___vms); /* id of this processor */
-  int child_id1 = id*2+1;          /* id of child 1 */
-  int child_id2 = id*2+2;          /* id of child 2 */
-  int n = ___vms->processor_count; /* processor count */
-  ___sync_op_struct sop = *sop_ptr;
-  int sid = id;
-
-  /*
-   * This function performs a barrier synchronization by imposing a
-   * tree structure on the set of processors in this Gambit VM.
-   */
-
-  /*
-   * Check operations from children processors and self to
-   * determine the highest priority operation.
-   */
-
-  if (child_id1 < n)
-    {
-      int sid1;
-      ___sync_op_struct sop1;
-
-      SYNC_GET_MSG(sid1 = ___ps->sync_id1);
-      SYNC_INIT_MSG(___ps->sync_id1);
-
-      sop1 = ___ps->sync_op1;
-
-      if (sop1.op < sop.op)
-        {
-          sop = sop1;
-          sid = sid1;
-        }
-      else if (sop1.op == sop.op && COMBINING_OP(sop1.op))
-        {
-          switch (COMBINING_OP(sop1.op))
-            {
-            case COMBINING_AND:
-              sop1.arg[0] &= sop.arg[0];
-              break;
-            case COMBINING_ADD:
-              sop1.arg[0] += sop.arg[0];
-              break;
-            case COMBINING_MAX:
-              if (sop1.arg[0] < sop.arg[0]) sop1.arg[0] = sop.arg[0];
-              break;
-            }
-
-          sop = sop1;
-          sid = sid1;
-        }
-
-      if (child_id2 < n)
-        {
-          int sid2;
-          ___sync_op_struct sop2;
-
-          SYNC_GET_MSG(sid2 = ___ps->sync_id2);
-          SYNC_INIT_MSG(___ps->sync_id2);
-
-          sop2 = ___ps->sync_op2;
-
-          if (sop2.op < sop.op)
-            {
-              sop = sop2;
-              sid = sid2;
-            }
-          else if (sop2.op == sop.op && COMBINING_OP(sop2.op))
-            {
-              switch (COMBINING_OP(sop2.op))
-                {
-                case COMBINING_AND:
-                  sop2.arg[0] &= sop.arg[0];
-                  break;
-                case COMBINING_ADD:
-                  sop2.arg[0] += sop.arg[0];
-                  break;
-                case COMBINING_MAX:
-                  if (sop2.arg[0] < sop.arg[0]) sop2.arg[0] = sop.arg[0];
-                  break;
-                }
-
-              sop = sop2;
-              sid = sid2;
-            }
-        }
-    }
-
-  /*
-   * Propagate highest priority operation to parent processor.
-   */
-
-  if (id == 0)
-    {
-      /*
-       * Special case operation that sets processor_count because this
-       * information is used by the barrier_sync algorithm itself.
-       */
-      if (sop.op == OP_SET_PROCESSOR_COUNT)
-        ___vms->processor_count = sop.arg[0];
-    }
-  else
-    {
-      ___processor_state parent = ___PSTATE_FROM_PROCESSOR_ID((id-1)>>1,___vms);
-
-      if (id & 1)
-        {
-          parent->sync_op1 = sop;
-          SYNC_SEND_MSG(parent, sync_id1, sid);
-        }
-      else
-        {
-          parent->sync_op2 = sop;
-          SYNC_SEND_MSG(parent, sync_id2, sid);
-        }
-
-      /*
-       * Wait for parent to reply with winning operation.
-       */
-
-      SYNC_GET_MSG(sid = ___ps->sync_id0);
-      SYNC_INIT_MSG(___ps->sync_id0);
-
-      sop = ___ps->sync_op0;
-    }
-
-  /*
-   * Propagate winning operation to children processors.
-   */
-
-  if (child_id1 < n)
-    {
-      ___processor_state child1 = ___PSTATE_FROM_PROCESSOR_ID(child_id1,___vms);
-
-      child1->sync_op0 = sop;
-      SYNC_SEND_MSG(child1, sync_id0, sid);
-
-      if (child_id2 < n)
-        {
-          ___processor_state child2 = ___PSTATE_FROM_PROCESSOR_ID(child_id2,___vms);
-
-          child2->sync_op0 = sop;
-          SYNC_SEND_MSG(child2, sync_id0, sid);
-        }
-    }
-
-  /*
-   * Return winning operation and id of originating processor.
-   */
-
-  *sop_ptr = sop;
-
-  return sid;
-
-#endif
 }
 
 
@@ -520,16 +348,6 @@ void barrier_sync_noop
         (___PSVNC)
 ___PSDKR)
 {
-#ifndef ___SINGLE_THREADED_VMS
-
-  ___PSGET
-
-  ___sync_op_struct sop;
-
-  sop.op = OP_NOOP;
-  barrier_sync_op (___PSP &sop);
-
-#endif
 }
 
 
@@ -682,131 +500,6 @@ ___SCMOBJ thunk;
 ___WORD target_processor_count;)
 {
   ___SCMOBJ err = ___FIX(___NO_ERR);
-
-#ifndef ___SINGLE_THREADED_VMS
-
-  ___virtual_machine_state ___vms = ___VMSTATE_FROM_PSTATE(___ps);
-  int id = ___PROCESSOR_ID(___ps, ___vms); /* id of this processor */
-  ___sync_op_struct sop;
-  int initial = ___vms->processor_count;
-
-  if (id == 0)
-    {
-      ___vms->mem.target_processor_count_ = target_processor_count;
-
-#ifdef ___ACTIVITY_LOG
-      if (target_processor_count > ___vms->actlog.max_processor_count)
-        ___vms->actlog.max_processor_count = target_processor_count;
-#endif
-    }
-
-  if (___vms->mem.the_msections_->nb_sections - ___vms->mem.nb_msections_assigned_ <
-      ___MIN_NB_MSECTIONS_PER_PROCESSOR * (target_processor_count - initial))
-    {
-      if (___garbage_collect_pstate (___ps, 0))
-        {
-          /*
-           * A heap overflow occurred, indicating the VM has
-           * insufficient space to accomodate the target number of
-           * processors.
-           */
-
-          if (id == 0)
-            ___vms->mem.target_processor_count_ = initial;
-
-          return ___FIX(___HEAP_OVERFLOW_ERR);
-        }
-    }
-
-  if (id != 0)
-    {
-      /*
-       * Wait for processor 0 to set ___vms->processor_count.
-       */
-
-      BARRIER();
-
-      /*
-       * Terminate current processor if it is no longer needed.
-       */
-
-      if (id >= target_processor_count)
-        {
-          ___cleanup_pstate (___ps);
-          ___thread_exit (); /* this call does not return */
-        }
-    }
-  else
-    {
-      int i;
-
-      /* Setup processor state of each additional processor */
-
-      for (i=initial; i<target_processor_count; i++)
-        {
-          ___processor_state ps = &___vms->pstate[i];
-
-          if ((err = ___setup_pstate (&___vms->pstate[i], ___vms))
-              != ___FIX(___NO_ERR))
-            {
-              while (--i >= initial)
-                ___cleanup_pstate (&___vms->pstate[i]);
-
-              BARRIER();
-
-              return err;
-            }
-        }
-
-      /*
-       * Set processor_count synchronously.
-       */
-
-      sop.op = OP_SET_PROCESSOR_COUNT;
-      sop.arg[0] = target_processor_count;
-      barrier_sync_op (___PSP &sop);
-
-      if (target_processor_count < initial)
-        {
-          /*
-           * Join processors that are reclaimed when number of
-           * processors shrinks.
-           */
-
-          for (i=initial-1; i>=target_processor_count; i--)
-            {
-              ___processor_state ps = &___vms->pstate[i];
-              ___thread *t = &ps->os_thread;
-
-              ___thread_join (t); /* ignore error */
-            }
-        }
-      else
-        {
-          /*
-           * Create new processors when number of processors grows.
-           */
-
-          for (i=initial; i<target_processor_count; i++)
-            {
-              ___processor_state ps = &___vms->pstate[i];
-              ___thread *t = &ps->os_thread;
-
-              t->start_fn = start_processor_execution;
-              t->data_ptr = ___CAST(void*,ps);
-              t->data_scmobj = thunk;
-
-              if ((err = ___thread_create (t)) != ___FIX(___NO_ERR))
-                {
-                  /* TODO: improve error handling */
-                  static char *msgs[] = { "Could not create OS thread", NULL };
-                  ___fatal_error (msgs);
-                }
-            }
-        }
-    }
-
-#endif
 
   return err;
 }
@@ -3236,24 +2929,6 @@ ___HIDDEN ___SCMOBJ setup_os_and_mem ___PVOID
 }
 
 
-#ifndef ___SINGLE_THREADED_VMS
-
-___HIDDEN void setup_sync_op_pstate
-   ___P((___processor_state ___ps),
-        (___ps)
-___processor_state ___ps;)
-{
-  SYNC_INIT_MSG(___ps->sync_id0);
-  SYNC_INIT_MSG(___ps->sync_id1);
-  SYNC_INIT_MSG(___ps->sync_id2);
-
-  ___MUTEX_INIT(___ps->sync_mut);
-  ___CONDVAR_INIT(___ps->sync_cv);
-}
-
-#endif
-
-
 ___EXP_FUNC(void,___cleanup_pstate)
    ___P((___processor_state ___ps),
         (___ps)
@@ -3273,14 +2948,6 @@ ___virtual_machine_state ___vms;)
 {
   ___SCMOBJ err;
   int i;
-
-  /*
-   * Processors need to know in which VM they are.
-   */
-
-#ifndef ___SINGLE_THREADED_VMS
-  ___ps->vmstate = ___vms;
-#endif
 
   /*
    * Setup processor's OS specific structures and memory management.
@@ -3319,16 +2986,6 @@ ___virtual_machine_state ___vms;)
    */
 
   setup_interrupts_pstate (___ps);
-
-  /*
-   * Setup synchronous operation system.
-   */
-
-#ifndef ___SINGLE_THREADED_VMS
-
-  setup_sync_op_pstate (___ps);
-
-#endif
 
   return ___FIX(___NO_ERR);
 }
@@ -3410,16 +3067,6 @@ ___EXP_FUNC(void,___cleanup) ___PVOID
 
   ___cleanup_all_interrupt_handling ();
 
-#ifndef ___SINGLE_THREADED_VMS
-
-  /*
-   * Shutdown processors of this VM except for processor 0.
-   */
-
-  ___current_vm_resize (___PSP ___FAL, 1);
-
-#endif
-
   ___cleanup_pstate (___ps);
 
   ___cleanup_vmstate (&___GSTATE->vmstate0);
@@ -3448,11 +3095,7 @@ ___setup_params_struct *setup_params;)
   setup_params->min_heap          = 0;
   setup_params->max_heap          = 0;
   setup_params->live_percent      = 0;
-#ifdef ___SINGLE_THREADED_VMS
   setup_params->parallelism_level = 1;
-#else
-  setup_params->parallelism_level = 0;
-#endif
   setup_params->adjust_heap_hook  = 0;
   setup_params->display_error     = 0;
   setup_params->fatal_error       = 0;
@@ -4624,19 +4267,6 @@ ___setup_params_struct *setup_params;)
       if ((err = ___setup_vmstate (___vms))
           != ___FIX(___NO_ERR))
         break;
-
-#ifndef ___SINGLE_THREADED_VMS
-
-      /*
-       * Associate the current OS thread with the processor state
-       * it is running.
-       */
-
-      if ((err = ___thread_init_from_self (&___ps->os_thread))
-          != ___FIX(___NO_ERR))
-        break;
-
-#endif
 
       /*
        * Setup current OS thread so that it can find the processor state

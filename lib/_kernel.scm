@@ -934,22 +934,6 @@ end-of-code
 
      ___SCMOBJ unwind_destination = ___STK(2-___FRAME_SPACE(2));
 
-#ifndef ___SINGLE_THREADED_VMS
-
-     if (!___FIXEQ(___FIELD(unwind_destination,1),
-                   ___FIX(___PROCESSOR_ID(___ps,___VMSTATE_FROM_PSTATE(___ps)))))
-       {
-         /* not the same processor that created frame */
-         ___COVER_RETURN_TO_C_HANDLER_WRONG_PROCESSOR;
-         ___SET_R0(___GSTATE->handler_return_to_c)
-         ___SET_R1(___FIELD(unwind_destination,1))
-         ___JUMPPRM(___SET_NARGS(1),
-                    ___PRMCELL(___G__23__23_c_2d_return_2d_on_2d_other_2d_processor.prm))
-       }
-     else
-
-#endif
-
      if (___FALSEP(___FIELD(unwind_destination,0)))
        {
          /* not first return */

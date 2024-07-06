@@ -24,11 +24,7 @@ extern void service_sync_op
         ());
 
 
-#ifdef ___SINGLE_THREADED_VMS
 #define BARRIER()
-#else
-#define BARRIER() barrier_sync_noop (___PSPNC)
-#endif
 
 #ifdef ___DEBUG_CTRL_FLOW_HISTORY
 #define ___USE_print_source_location

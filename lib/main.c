@@ -40,9 +40,6 @@ int debug_settings;)
         "  mHEAPSIZE       set minimum heap size in kilobytes\n"
         "  hHEAPSIZE       set maximum heap size in kilobytes\n"
         "  lLIVEPERCENT    set heap live ratio after GC in percent\n"
-#ifndef ___SINGLE_THREADED_VMS
-        "  pLEVEL          set parallelism level (default = 50% of cpus)\n"
-#endif
         "  s|S             set standard Scheme mode (on|off)\n"
         "  d[OPT...]       set debugging options; OPT is one of:\n"
         "                    p|a       treat uncaught exceptions as errors\n"
@@ -214,15 +211,7 @@ ___mod_or_lnk (*linker)();)
   min_heap_len = 0;
   max_heap_len = 0;
   live_percent = 0;
-#ifdef ___SINGLE_THREADED_VMS
   parallelism_level = 1;
-#else
-  {
-    int count = ___cpu_count ();
-    if (count < 1) count = 1;
-    parallelism_level = ___CEILING_DIV(count*50,100); /* default = 50% */
-  }
-#endif
   standard_level = 0;
   debug_settings = ___DEBUG_SETTINGS_INITIAL;
   file_settings = ___FILE_SETTINGS_INITIAL;
@@ -395,22 +384,8 @@ ___mod_or_lnk (*linker)();)
                   case 'p':
                     if (*arg == '%')
                       {
-#ifndef ___SINGLE_THREADED_VMS
-                        int count = ___cpu_count ();
-                        if (argval > 100)
-                          argval = 100;
-                        parallelism_level = ___CEILING_DIV(count*argval,100);
-                        if (neg)
-                          parallelism_level = count - parallelism_level;
-                        if (parallelism_level < 1)
-                          parallelism_level = 1;
-#endif
                         arg++;
                       }
-#ifndef ___SINGLE_THREADED_VMS
-                    else
-                      parallelism_level = neg ? -argval : argval;
-#endif
                   }
                 break;
               }
