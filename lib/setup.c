@@ -77,11 +77,6 @@ int code;)
    * state will be ignored.
    */
 
-#ifdef CALL_GC_FREQUENTLY
-  if (code != ___INTR_USER)
-    return;
-#endif
-
   if (___INTERRUPT_REQ(___ps->intr_flag[code] = ___FIX(1)<<code,
                        ___ps->intr_mask))
     {

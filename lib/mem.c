@@ -1392,10 +1392,6 @@ ___SIZE_TS bytes;)
   ___SIZE_TS words = ___STILL_BODY + ___WORDS(bytes);
   ___SIZE_TS words_including_deferred = words + words_still_objs_deferred;
 
-#ifdef CALL_GC_FREQUENTLY
-  if (--___gc_calls_to_punt < 0) goto invoke_gc;
-#endif
-
   if (words_including_deferred <= ___MAX_STILL_DEFERRED)
     {
       /*
@@ -1455,10 +1451,6 @@ ___SIZE_TS bytes;)
           /*
            * There is insufficient free heap space, so call GC.
            */
-
-#ifdef CALL_GC_FREQUENTLY
-        invoke_gc:
-#endif
 
           if (___garbage_collect (___PSP words))
             return ___FIX(___HEAP_OVERFLOW_ERR);
@@ -4013,13 +4005,8 @@ ___processor_state ___ps;)
   ___SIZE_TS heap_avail;
   ___SIZE_TS heap_left_before_fudge;
 
-#ifdef ___CALL_GC_FREQUENTLY
-  avail = 0;
-  ___ps->mem.gc_calls_to_punt_ = 2000;
-#else
   avail = compute_free_heap_space()/2;
   SET_MAX(avail,0);
-#endif
 
   stack_avail = avail/2;
   stack_left_before_fudge = (alloc_stack_ptr - alloc_stack_limit)
@@ -5844,11 +5831,7 @@ ___PSDKR)
     check_fudge_used (___PSPNC);
 #endif
 
-  if (
-#ifdef CALL_GC_FREQUENTLY
-      --___gc_calls_to_punt >= 0 &&
-#endif
-      compute_free_heap_space() >= ___MSECTION_SIZE)
+  if (compute_free_heap_space() >= ___MSECTION_SIZE)
     {
       if (alloc_stack_ptr < alloc_stack_limit + ___MSECTION_FUDGE)
         {
@@ -5927,11 +5910,7 @@ ___PSDKR)
      * Get a new heap msection.
      */
 
-    if (
-#ifdef CALL_GC_FREQUENTLY
-        --___gc_calls_to_punt >= 0 &&
-#endif
-        compute_free_heap_space() >= ___MSECTION_SIZE)
+    if (compute_free_heap_space() >= ___MSECTION_SIZE)
       {
         if (alloc_heap_ptr > alloc_heap_limit - ___MSECTION_FUDGE)
             next_heap_msection_without_locking (___ps);

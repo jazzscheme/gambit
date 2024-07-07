@@ -8354,9 +8354,6 @@ int mark_array_call_line_; /* where was mark_array called */
 
 #endif
 
-#ifdef ___CALL_GC_FREQUENTLY
-int gc_calls_to_punt_;
-#endif
 } ___pstate_mem;
 
 #ifndef ___OS_WIN32

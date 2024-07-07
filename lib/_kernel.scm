@@ -148,11 +148,7 @@ end-of-code
 
    /* check why the handler was called */
 
-   if (___FP_AFTER(___fp,___ps->stack_limit)
-#ifdef ___CALL_GC_FREQUENTLY
-       || --___ps->mem.gc_calls_to_punt_ < 0
-#endif
-      )
+   if (___FP_AFTER(___fp,___ps->stack_limit))
      {
        ___BOOL overflow;
 
