@@ -2297,6 +2297,8 @@ ___hp = ___CAST(___WORD*, (___CAST(___WORD,___hp) + (((n)<<___LWS) + 7)) & ~7)
 #endif
 
 #ifdef ___TRACK_ALLOCATIONS
+#define ___TRACK_SAVE() if (___GSTATE->tracking_allocations) ___GSTATE->tracked_save += (___ps->stack_break - ___fp);
+#define ___TRACK_CAPTURE() if (___GSTATE->tracking_allocations) ___GSTATE->tracked_capture += (___ps->stack_break - ___fp);
 #define MAX_TRACKED 1024
 #define ___TRACK_ALLOC(obj)(___temp = (obj), (___GSTATE->tracking_allocations ? ___EXT(___track_allocation)(___temp, __FILE__, __LINE__) : ___temp))
 #define ___UPDATE_TRACKED(obj)(___temp = (obj), (___GSTATE->tracking_allocations ? ___EXT(___update_tracked)(___temp, __FILE__, __LINE__) : ___temp))
@@ -2306,6 +2308,8 @@ if (___GSTATE->tracking_allocations && ___GSTATE->tracked_count > 0) \
 ___JUMPEXTPRM(___NOTHING,___GSTATE->record_tracked) \
 }
 #else
+#define ___TRACK_SAVE()
+#define ___TRACK_CAPTURE()
 #define ___TRACK_ALLOC(obj)obj
 #define ___UPDATE_TRACKED(obj)obj
 #define ___CHECK_TRACKED(n)
@@ -3683,6 +3687,7 @@ else \
     frame = ___CAST(___SCMOBJ,___fp); \
     ___ADJFP(___BREAK_FRAME_SPACE) \
     ___SET_STK(-___BREAK_FRAME_NEXT,frame) \
+    ___TRACK_SAVE() \
     ___ps->stack_break = ___fp; \
   } \
 thread = ___CURRENTTHREAD; \
@@ -3888,6 +3893,7 @@ ___SET_STK(-2,___FIELD(___CURRENTTHREAD,___THREAD_DENV)) \
 cont = ___SUBTYPED_FROM_START(&___STK(0)); \
 ___ADJFP(___BREAK_FRAME_SPACE) \
 ___SET_STK(-___BREAK_FRAME_NEXT,frame) \
+___TRACK_CAPTURE() \
 ___ps->stack_break = ___fp;
 
 #define ___JUMP_CONTINUATION_CAPTURE1(jump) \
@@ -8750,8 +8756,10 @@ typedef struct ___global_state_struct
     ___setup_params_struct setup_params; /* params received by ___setup */
 
 #ifdef ___TRACK_ALLOCATIONS
-    ___WORD tracking_allocations;
+    ___BOOL tracking_allocations;
     ___SCMOBJ tracked[MAX_TRACKED];
+    int tracked_save;
+    int tracked_capture;
     int tracked_count;
 #endif
     ___WORD handler_sfun_conv_error;

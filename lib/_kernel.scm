@@ -4304,12 +4304,24 @@ end-of-code
 
   ))
 
-(define-prim (##count-tracked)
+(define-prim (##save-tracked)
   (##declare (not interrupts-enabled))
   (##c-code #<<end-of-code
 
 #ifdef ___TRACK_ALLOCATIONS
-   ___RESULT = ___FIX(___count_tracked());
+   ___RESULT = ___FIX(___save_tracked());
+#endif
+   
+end-of-code
+
+  ))
+
+(define-prim (##capture-tracked)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+   ___RESULT = ___FIX(___capture_tracked());
 #endif
    
 end-of-code
@@ -4322,6 +4334,18 @@ end-of-code
 
 #ifdef ___TRACK_ALLOCATIONS
    ___RESULT = ___FIX(___all_tracked());
+#endif
+   
+end-of-code
+
+  ))
+
+(define-prim (##count-tracked)
+  (##declare (not interrupts-enabled))
+  (##c-code #<<end-of-code
+
+#ifdef ___TRACK_ALLOCATIONS
+   ___RESULT = ___FIX(___count_tracked());
 #endif
    
 end-of-code

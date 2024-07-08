@@ -250,11 +250,19 @@ extern void ___reset_tracked
    ___P((),
         ());
 
-extern int ___count_tracked
+extern int ___save_tracked
+   ___P((),
+        ());
+
+extern int ___capture_tracked
    ___P((),
         ());
 
 extern int ___all_tracked
+   ___P((),
+        ());
+
+extern int ___count_tracked
    ___P((),
         ());
 

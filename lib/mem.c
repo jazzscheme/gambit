@@ -4131,6 +4131,10 @@ ___processor_state ___ps;)
   ___FP_SET_STK(alloc_stack_ptr,-___BREAK_FRAME_NEXT,___END_OF_CONT_MARKER)
 
   ___ps->stack_break = alloc_stack_ptr;
+#ifdef ___TRACK_ALLOCATIONS
+  if (___GSTATE->tracking_allocations)
+    ___GSTATE->tracked_save += (alloc_stack_start - ___ps->stack_break);
+#endif
 
   /*
    * Setup will lists.
@@ -5647,6 +5651,14 @@ ___BOOL ___garbage_collect_pstate
 ___processor_state ___ps;
 ___SIZE_TS requested_words_still;)
 {
+#ifdef ___TRACK_ALLOCATIONS
+  if (___GSTATE->tracking_allocations)
+    {
+      ___GSTATE->tracked_save = 0;
+      ___GSTATE->tracked_capture = 0;
+    }
+#endif
+
   ___virtual_machine_state ___vms = ___VMSTATE_FROM_PSTATE(___ps);
   ___BOOL overflow = 0;
   ___F64 user_time_start, sys_time_start, real_time_start;
@@ -5842,6 +5854,14 @@ ___PSDKR)
           else
             frame = ___FP_STK(alloc_stack_ptr,-___BREAK_FRAME_NEXT);
 
+#ifdef ___TRACK_ALLOCATIONS
+          if (___GSTATE->tracking_allocations)
+            {
+              ___GSTATE->tracked_save = 0;
+              ___GSTATE->tracked_capture = 0;
+            }
+#endif
+
           next_stack_msection_without_locking (___ps);
 
           /*
@@ -5855,6 +5875,10 @@ ___PSDKR)
           ___FP_SET_STK(alloc_stack_ptr,-___BREAK_FRAME_NEXT,frame)
 
           ___ps->stack_break = alloc_stack_ptr;
+#ifdef ___TRACK_ALLOCATIONS
+          if (___GSTATE->tracking_allocations)
+            ___GSTATE->tracked_save += (alloc_stack_start - ___ps->stack_break);
+#endif
         }
 
       prepare_mem_pstate (___ps);
@@ -5978,18 +6002,30 @@ int line;)
 
 void ___reset_tracked()
 {
+    ___GSTATE->tracked_save = 0;
+    ___GSTATE->tracked_capture = 0;
     ___GSTATE->tracked_count = 0;
     TrackedAll = 0;
 }
 
-int ___count_tracked()
+int ___save_tracked()
 {
-    return ___GSTATE->tracked_count;
+    return ___GSTATE->tracked_save;
+}
+
+int ___capture_tracked()
+{
+    return ___GSTATE->tracked_capture;
 }
 
 int ___all_tracked()
 {
     return TrackedAll;
+}
+
+int ___count_tracked()
+{
+    return ___GSTATE->tracked_count;
 }
 
 ___SCMOBJ ___get_tracked_object(int n)
