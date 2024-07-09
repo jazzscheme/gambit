@@ -388,17 +388,6 @@
         (if heap (set! targ-proc-heap-reserved 0))
         (if ssb (set! targ-proc-ssb-reserved 0)))))
 
-(define (targ-check-tracked sn)
-  (let ((lbl (targ-new-lbl)))
-    
-    (targ-emit (targ-adjust-stack sn))
-    
-    (targ-emit
-      (append (list "CHECK_TRACKED"
-                    (targ-ref-lbl-val lbl))))
-    
-    (targ-gen-label-return* lbl 'return-internal)))
-
 (define (targ-start-bb fs)
   (set! targ-proc-heap-reserved 0)
   (set! targ-proc-ssb-reserved 0)
@@ -1198,9 +1187,6 @@
       (begin
         (if (> targ-proc-heap-reserved 0)
             (targ-check-conditions 0 #f #f sn))
-        ;; check tracked on every block end
-        (if linking-library?
-            (targ-check-tracked sn))
         (if (> targ-proc-ssb-reserved 0)
             (targ-check-conditions #f 0 #f sn))
         (if poll?

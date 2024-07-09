@@ -5587,7 +5587,8 @@ if (___EXPECT_FALSE(___hp>___ps->heap_limit)) \
 ___ps->check_heap_location.file=__FILE__; \
 ___ps->check_heap_location.line=__LINE__; \
 ___JUMPEXTPRM(___NOTHING,___GSTATE->handler_heap_limit) \
-}
+} \
+___CHECK_TRACKED(n)
 
 #else
 
@@ -5595,7 +5596,8 @@ ___JUMPEXTPRM(___NOTHING,___GSTATE->handler_heap_limit) \
 if (___EXPECT_FALSE(___hp>___ps->heap_limit)) \
 {___ps->temp1=___LBL(n); \
 ___JUMPEXTPRM(___NOTHING,___GSTATE->handler_heap_limit) \
-}
+} \
+___CHECK_TRACKED(n)
 
 #endif
 
