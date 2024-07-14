@@ -994,6 +994,7 @@
                    current-thread)
                   (if (##not (##eq? timeout #t))
                     (begin
+                      (macro-thread-timeouts-increase! current-thread)
                       (macro-thread-timeout-set! current-thread timeout)
                       (##toq-insert! (macro-current-processor) current-thread)))
                   (##thread-schedule!))
@@ -1379,6 +1380,7 @@
                                     current-thread)
                                    (if (##not (##eq? timeout #t))
                                      (begin
+                                       (macro-thread-timeouts-increase! current-thread)
                                        (macro-thread-timeout-set!
                                         current-thread
                                         timeout)
@@ -1837,6 +1839,7 @@
                             (##thread-btq-insert! mutex current-thread)
                             (if (##not (##eq? timeout #t))
                                 (begin
+                                  (macro-thread-timeouts-increase! current-thread)
                                   (macro-thread-timeout-set!
                                    current-thread
                                    timeout)
@@ -1913,6 +1916,7 @@
               (##thread-btq-insert! condvar current-thread)
               (if (##not (##eq? timeout #t))
                 (begin
+                  (macro-thread-timeouts-increase! current-thread)
                   (macro-thread-timeout-set!
                    current-thread
                    timeout)
@@ -1945,6 +1949,7 @@
               (##thread-btq-insert! condvar current-thread)
               (if (##not (##eq? timeout #t))
                 (begin
+                  (macro-thread-timeouts-increase! current-thread)
                   (macro-thread-timeout-set!
                    current-thread
                    timeout)
@@ -2285,6 +2290,18 @@
            thread
            (thread-priority-boost-set! thread priority-boost)
            (##thread-priority-boost-set! thread b))))))))
+
+(define-prim (thread-timeouts thread)
+  (macro-force-vars (thread)
+    (macro-check-thread thread 1 (thread-base-priority thread)
+      (macro-check-initialized-thread thread (thread-base-priority thread)
+        (macro-thread-timeouts thread)))))
+
+(define-prim (thread-timeouts-reset! thread)
+  (macro-force-vars (thread)
+    (macro-check-thread thread 1 (thread-base-priority thread)
+      (macro-check-initialized-thread thread (thread-base-priority thread)
+        (macro-thread-timeouts-set! thread 0)))))
 
 (define-prim (thread-start! thread)
   (macro-force-vars (thread)

@@ -1113,6 +1113,8 @@
 ;;  terminated with result     #f            #f           result object
 ;;  terminated with exception  #f            #t           exception object
 
+(cond-expand
+  (disable-track-allocations
 (define-type thread
   id: d05e0aa7-e235-441d-aa41-c1ac02065460
   extender: macro-define-type-of-thread
@@ -1169,6 +1171,73 @@
   (interrupts       init: '())
   (last-processor   init: #f) ;; last processor that executed thread or #f
 )
+
+(##define-macro (macro-thread-timeouts-increase! t)
+  `(begin))
+)
+  (else
+(define-type thread
+  id: d05e0aa7-e235-441d-aa41-c1ac02065460
+  extender: macro-define-type-of-thread
+  type-exhibitor: macro-type-thread
+  constructor: macro-construct-thread
+  implementer: implement-type-thread
+  opaque:
+  macros:
+  prefix: macro-
+
+  unprintable:
+
+  (lock1            init: 0)
+
+  (btq-deq-next     init: #f) ;; blocked thread queues owned by thread
+  (btq-deq-prev     init: #f)
+
+  (btq-color        init: #f) ;; to keep thread in a blocked thread queue
+  (btq-parent       init: #f)
+  (btq-left         init: #f)
+  (btq-leftmost     init: #f)
+
+  (tgroup           init: #f) ;; thread-group this thread belongs to
+
+  (lock2            init: 0)
+
+  (toq-color        init: #f) ;; to keep thread in a timeout queue
+  (toq-parent       init: #f)
+  (toq-left         init: #f)
+  (toq-leftmost     init: #f)
+
+  (threads-deq-next init: #f) ;; threads in this thread group
+  (threads-deq-prev init: #f)
+
+  (floats           init: #f)
+
+  (btq-container    init: #f) ;; unused
+
+  (toq-container    init: #f) ;; unused
+
+  (name             init: #f)
+  (end-condvar      init: #f)
+  (exception?       init: 'not-started)
+  (result           init: #f)
+  (cont             init: #f)
+  (denv             init: #f)
+  (denv-cache1      init: #f)
+  (denv-cache2      init: #f)
+  (denv-cache3      init: #f)
+  (repl-channel     init: #f)
+  (mailbox          init: #f)
+  (specific         init: '#!void)
+  (resume-thunk     init: #f)
+  (interrupts       init: '())
+  (last-processor   init: #f) ;; last processor that executed thread or #f
+  
+  (timeouts         init: 0)
+)
+
+(##define-macro (macro-thread-timeouts-increase! t)
+  `(macro-thread-timeouts-set! ,t (##fx+ (macro-thread-timeouts ,t) 1)))
+))
 
 ;;; Access to floating point fields.
 

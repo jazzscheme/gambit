@@ -885,8 +885,10 @@ AC_ARG_ENABLE(track-allocations,
 
 if test "$ENABLE_TRACK_ALLOCATIONS" = yes; then
   CONF_TRACK_ALLOCATIONS="___TRACK_ALLOCATIONS"
+  RTLIB_COND_EXPAND_FEATURES="$RTLIB_COND_EXPAND_FEATURES(define-cond-expand-feature|disable-track-allocations|)"
 else
   CONF_TRACK_ALLOCATIONS="___NO_TRACK_ALLOCATIONS"
+  RTLIB_COND_EXPAND_FEATURES="$RTLIB_COND_EXPAND_FEATURES(define-cond-expand-feature|enable-track-allocations|)"
 fi
 
 AC_SUBST(CONF_TRACK_ALLOCATIONS)
