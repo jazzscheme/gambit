@@ -1170,6 +1170,10 @@
   (resume-thunk     init: #f)
   (interrupts       init: '())
   (last-processor   init: #f) ;; last processor that executed thread or #f
+  
+  (stack            init: #f)
+  (frame-pointer    init: #f)
+  (stack-limit      init: #f)
 )
 
 (##define-macro (macro-thread-timeouts-increase! t)
@@ -1231,6 +1235,10 @@
   (resume-thunk     init: #f)
   (interrupts       init: '())
   (last-processor   init: #f) ;; last processor that executed thread or #f
+  
+  (stack            init: #f)
+  (frame-pointer    init: #f)
+  (stack-limit      init: #f)
   
   (timeouts         init: 0)
 )

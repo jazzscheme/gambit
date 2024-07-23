@@ -2220,6 +2220,21 @@
         (macro-thread-specific-set! thread obj)
         (##void)))))
 
+(define-prim (thread-stack thread)
+  (macro-force-vars (thread)
+    (macro-check-thread thread 1 (thread-stack thread)
+      (macro-thread-stack thread))))
+
+(define-prim (thread-frame-pointer thread)
+  (macro-force-vars (thread)
+    (macro-check-thread thread 1 (thread-frame-pointer thread)
+      (macro-thread-frame-pointer thread))))
+
+(define-prim (thread-stack-limit thread)
+  (macro-force-vars (thread)
+    (macro-check-thread thread 1 (thread-stack-limit thread)
+      (macro-thread-stack-limit thread))))
+
 (define-prim (thread-base-priority thread)
   (macro-force-vars (thread)
     (macro-check-thread thread 1 (thread-base-priority thread)
