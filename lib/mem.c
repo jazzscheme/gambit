@@ -136,11 +136,13 @@
  * length   | |
  *    subtype head tag
  *
- * Of the 8 possible head tags, only 5 are currently used:
+ * Of the 8 possible head tags, 7 are currently used:
  *
  *    ___PERM     (P) the object is a permanent object
  *    ___STILL    (S) the object is a still object
- *    ___MOVABLE0 (M) the object is a movable object in generation 0
+ *    ___MOVABLE  (M) the object is a movable object
+ *    ___STACK    (K) the object is a stack object
+ *    ___INVALID  (I) the object is a invalid stack object
  *    ___FORW     (F) the object has been moved by the GC (counts as 2 tags)
  *
  * Permanent objects have the following layout:
@@ -2090,7 +2092,7 @@ ___SCMOBJ val;)
                 print_value (___FIELD(sym,___SYMKEY_NAME));
               else
                 {
-                  if (___HD_TYP(head) == ___PERM)
+                  if (___HD_TYP(head) == ___PERM || ___HD_TYP(head) == ___STACK)
                     {
                       ___SCMOBJ *start = &body[-1];
                       ___SCMOBJ *ptr = start;
@@ -2315,6 +2317,9 @@ int indent;)
         case ___sMEROON:
           ___printf ("MEROON\n");
           break;
+        case ___sJAZZ:
+          ___printf ("JAZZ\n");
+          break;
         case ___sSYMBOL:
           ___printf ("SYMBOL ");
           print_object (___FIELD(obj,___SYMKEY_NAME)>>shift, max_depth-1, "", 0);
@@ -2478,6 +2483,7 @@ int shift;
 char *msg;)
 {
   ___PSGET
+  ___SCMOBJ ___temp;
 
   dump_memory_map (___PSPNC);
 
@@ -2514,10 +2520,12 @@ char *msg;)
         ___printf (">>> The reference was found in ");
         if (___HD_TYP(head) == ___PERM)
           ___printf ("___PERM ");
+        else if (___HD_TYP(head) == ___STACK)
+          ___printf ("___STACK ");
         else if (___HD_TYP(head) == ___STILL)
           ___printf ("___STILL ");
-        else if (___HD_TYP(head) == ___MOVABLE0)
-          ___printf ("___MOVABLE0 ");
+        else if (___HD_TYP(head) == ___MOVABLE)
+          ___printf ("___MOVABLE ");
         else if (___TYP(head) == ___FORW)
           ___printf ("___FORW ");
         else
@@ -2636,14 +2644,14 @@ ___WORD obj;)
                                        tospace_offset);
                   if (pos2 < 0 || pos2 >= ___MSECTION_SIZE>>1)
                     bug (___PSP obj, 0, "was copied outside of tospace");
-                  else if (___HD_TYP((*hd_ptr2)) != ___MOVABLE0)
-                    bug (___PSP obj, 0, "was copied and copy is not ___MOVABLE0");
+                  else if (___HD_TYP((*hd_ptr2)) != ___MOVABLE)
+                    bug (___PSP obj, 0, "was copied and copy is not ___MOVABLE");
                 }
               else
                 bug (___PSP obj, 0, "was copied outside of tospace");
             }
-          else if (___HD_TYP(head) != ___MOVABLE0)
-            bug (___PSP obj, ___HTB, "should be ___MOVABLE0");
+          else if (___HD_TYP(head) != ___MOVABLE)
+            bug (___PSP obj, 0, "should be ___MOVABLE");
           else
             {
               pos -= tospace_offset;
@@ -2654,8 +2662,10 @@ ___WORD obj;)
         }
     }
   head = *hd_ptr; /* this dereference will likely bomb if there is a bug */
-  if (___HD_TYP(head) != ___PERM && ___HD_TYP(head) != ___STILL)
-    bug (___PSP obj, 0, "is not ___PERM or ___STILL");
+  if (___HD_TYP(head) == ___INVALID)
+    bug (___PSP obj, 0, "is ___INVALID");
+  else if (___HD_TYP(head) != ___PERM && ___HD_TYP(head) != ___STACK && ___HD_TYP(head) != ___STILL)
+    bug (___PSP obj, 0, "is not ___PERM or ___STACK or ___STILL");
 }
 
 
@@ -3143,7 +3153,7 @@ ___WORD n;)
             subtype = ___HD_SUBTYPE(head);
             head_typ = ___HD_TYP(head);
 
-            if (head_typ == ___MOVABLE0)
+            if (head_typ == ___MOVABLE)
               {
                 ___SIZE_TS words = ___HD_WORDS(head);
                 /*TODO: add allocation of handle if using handles*/
@@ -3221,9 +3231,14 @@ ___WORD n;)
                 *cell = ___TAG(___UNTAG_AS(head, ___FORW), ___TYP(obj));
               }
 #ifdef ENABLE_CONSISTENCY_CHECKS
-            else if (___DEBUG_SETTINGS_LEVEL(___GSTATE->setup_params.debug_settings) >= 1 &&
-                     head_typ != ___PERM)
-              bug (___PSP obj, 0, "was not ___PERM, ___STILL, ___MOVABLE0 or ___FORW");
+            else if (___DEBUG_SETTINGS_LEVEL(___GSTATE->setup_params.debug_settings) >= 1)
+              {
+                if (head_typ == ___INVALID)
+                  bug (___PSP obj, 0, "is ___INVALID");
+                else if (head_typ != ___PERM &&
+                         head_typ != ___STACK)
+                  bug (___PSP obj, 0, "was not ___PERM, ___STACK, ___STILL, ___MOVABLE or ___FORW");
+              }
 #endif
           }
       }
@@ -3552,7 +3567,7 @@ ___PSDKR)
 
 
 #define UNMARKED_MOVABLE(obj) \
-((unmarked_typ = ___HD_TYP((unmarked_body=___BODY0(obj))[-1])) == ___MOVABLE0)
+((unmarked_typ = ___HD_TYP((unmarked_body=___BODY0(obj))[-1])) == ___MOVABLE)
 
 #define UNMARKED_STILL(obj) \
 (unmarked_typ == ___STILL && \
@@ -3725,7 +3740,7 @@ ___WORD *body;)
 
     default:
 
-      if (___HD_TYP(head) == ___MOVABLE0 && subtype <= ___sBOXVALUES)
+      if (___HD_TYP(head) == ___MOVABLE && subtype <= ___sBOXVALUES)
         mark_array (___PSP body+1, words-1);
       else
         mark_array (___PSP body, words);

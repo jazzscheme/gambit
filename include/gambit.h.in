@@ -2117,9 +2117,9 @@ ___CAST_U64((val)<<(((i)&7)<<3))
  * allocated objects.
  *
  * ___HTB = number of head tag bits
- * ___MOVABLE0 = tag for movable objects in generation 0
- * ___MOVABLE1 = tag for movable objects in generation 1
- * ___MOVABLE2 = tag for movable objects in generation 2
+ * ___MOVABLE  = tag for movable objects
+ * ___STACK    = tag for stack objects
+ * ___INVALID  = tag for invalid stack objects
  * ___FORW     = tag for movable objects that have been forwarded
  * ___STILL    = tag for still objects
  * ___PERM     = tag for permanent objects
@@ -2128,9 +2128,9 @@ ___CAST_U64((val)<<(((i)&7)<<3))
  */
 
 #define ___HTB 3
-#define ___MOVABLE0 0
-#define ___MOVABLE1 1
-#define ___MOVABLE2 2
+#define ___MOVABLE  0
+#define ___STACK    1
+#define ___INVALID  2
 #define ___FORW     3
 #define ___STILL    5
 #define ___PERM     6
@@ -2381,8 +2381,8 @@ ___TRACK_ALLOC(___TAG(___CAST(___WORD*,ptr) - (___REFERENCE_TO_BODY+(n)), ___tSU
 
 #define ___WORDS(bytes)(((bytes)+___WS-1)>>___LWS)
 
-#define ___MAKE_HD_BYTES(bytes,subtype)___MAKE_HD(bytes,subtype,___MOVABLE0)
-#define ___MAKE_HD_WORDS(words,subtype)___MAKE_HD(((words)<<___LWS),subtype,___MOVABLE0)
+#define ___MAKE_HD_BYTES(bytes,subtype)___MAKE_HD(bytes,subtype,___MOVABLE)
+#define ___MAKE_HD_WORDS(words,subtype)___MAKE_HD(((words)<<___LWS),subtype,___MOVABLE)
 
 /* Flonum boxing and unboxing */
 
