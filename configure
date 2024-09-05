@@ -9390,8 +9390,8 @@ if test "$ENABLE_OPENSSL" = yes; then
 
   case "$target_os" in
     darwin*) # OS X ships a very old version and considers OpenSSL deprecated
-             CFLAGS="$CFLAGS -Wno-deprecated-declarations -I\"/usr/local/opt/openssl/include\""
-             LIBS="$LIBS -L/usr/local/opt/openssl/lib -lssl -lcrypto"
+             CFLAGS="$CFLAGS -Wno-deprecated-declarations -I\"/Users/cartier/Devel/jazz/foreign/foreign/jazz-stream-silicon/gstreamer/include\""
+             LIBS="$LIBS -L/Users/cartier/Devel/jazz/foreign/foreign/jazz-stream-silicon/gstreamer/lib -lssl -lcrypto"
              ;;
     mingw*) # Search in typical locations
              CFLAGS="$CFLAGS -I\"/C/OpenSSL-x64/include\" -I\"/c/OpenSSL/include\" -I\"/usr/local/include\""
